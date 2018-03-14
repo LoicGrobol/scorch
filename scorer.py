@@ -120,6 +120,22 @@ def clusters_from_json(fp) -> ty.List[ty.Set]:
     raise ValueError('Unsupported input format')
 
 
+def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set]:
+    '''Return the partition of `#cluster` induced by `#partition`, that is
+       \[ \{C∩A|A∈P\} ∪ \{\{x\}|x∈C∖∪P\} \]
+       Where $C$ is `#cluster` and $P$ is `#partition`.
+
+       This assume that the elements of `#partition` are indeed pairwise disjoint'''
+    remaining = set(cluster)
+    for a in partition:
+        common = remaining.intersection(a)
+        if common:
+            remaining.difference_update(common)
+            yield common
+    for x in sorted(remaining):
+        yield set((x,))
+
+
 def muc(response: ty.List[ty.Set], key: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
     '''Compute the MUC $(P, R, F₁)$ scores for a `#response` clustering given a `#key`
        clustering`.'''
