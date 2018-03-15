@@ -33,12 +33,14 @@ Example:
 __version__ = 'score 0.0.0'
 
 import contextlib
+import json
 import signal
 import sys
-import json
+
+import itertools as it
+import typing as ty
 
 import numpy as np
-import typing as ty
 
 from docopt import docopt
 from scipy.optimize import linear_sum_assignment
@@ -122,6 +124,25 @@ def clusters_from_json(fp) -> ty.List[ty.Set]:
     raise ValueError('Unsupported input format')
 
 
+# OPTIMIZE: This could be made faster by dealing separately with singletons
+# OPTIMIZE: This could be made faster (in average) by sorting `cluster_lst` by decreasing length
+def links_from_clusters(clusters: ty.Iterable[ty.Set]
+                        ) -> ty.Tuple[ty.List[ty.Tuple[ty.Hashable, ty.Hashable]],
+                                      ty.List[ty.Tuple[ty.Hashable, ty.Hashable]]]:
+    clusters_lst = list(clusters)
+    elements = sorted(set.union(*clusters_lst))
+    C = []
+    N = []
+    for i, j in it.combinations(elements, 2):
+        if i == j:
+            continue
+        elif any(c for c in clusters_lst if i in c and j in c):
+            C.append((i, j))
+        else:
+            N.append((i, j))
+    return C, N
+
+
 def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set]:
     r'''
     Return the partition of `#cluster` induced by `#partition`, that is
@@ -203,14 +224,14 @@ def ceaf(key: ty.List[ty.Set],
 def ceaf_m(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
     Compute the CEAF_m `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
-    clustering`, that is the CEAF score for the score function
+    clustering`, that is the CEAF score for the `$Φ_3$` score function
     ```math
-    S: (k, r) ⟼ \#k∩r
+    Φ_3: (k, r) ⟼ \#k∩r
     ```
     '''
-    def intersect_score(k, r):
+    def Φ_3(k, r):
         return len(k.intersection(r))
-    return ceaf(key, response, intersect_score)
+    return ceaf(key, response, Φ_3)
 
 
 def ceaf_e(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
@@ -220,11 +241,34 @@ def ceaf_e(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, f
     (aka the Sørensen–Dice coefficient).
     ```math
     Φ₄: (k, r) ⟼ \frac{2×\#k∩r}{\#k+\#r}
+    Note: this use the original (Luo, 2005) definition as opposed to the (Pradhan et al. 2014) one
+    which inlines the denominators.
     ```
     '''
     def Φ_4(k, r):
         return 2*len(k.intersection(r))/(len(k)+len(r))
     return ceaf(key, response, Φ_4)
+
+
+# COMBAK: Check the numeric stability
+def blanc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
+    r'''
+    Return the BLANC `$(R, P, F)$` scores for a `#response` clustering given a `#key`
+    clustering`, that is.
+    '''
+    C_k, N_k = map(set, links_from_clusters(key))
+    C_r, N_r = map(set, links_from_clusters(response))
+
+    T_c = C_k.intersection(C_r)
+    T_n = N_k.intersection(N_r)
+
+    R_c, P_c = len(T_c)/len(C_k), len(T_c)/len(C_r)
+    half_F_c = P_c*R_c/(P_c+R_c)
+
+    R_n, P_n = len(T_n)/len(N_k), len(T_n)/len(N_r)
+    half_F_n = P_n*R_n/(P_n+R_n)
+
+    return (R_c+R_n)/2, (P_c+P_n)/2, half_F_c+half_F_n
 
 
 def main_entry_point(argv=None):
