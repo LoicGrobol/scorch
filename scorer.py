@@ -128,7 +128,7 @@ def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set
     ```math
     \{C∩A|A∈P\} ∪ \{\{x\}|x∈C∖∪P\}
     ```
-    Where $C$ is `#cluster` and $P$ is `#partition`.
+    Where `$C$` is `#cluster` and `$P$` is `#partition`.
 
     This assume that the elements of `#partition` are indeed pairwise disjoint'''
     remaining = set(cluster)
@@ -146,8 +146,8 @@ def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, floa
     Compute the MUC `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
     clustering`, that is
     ```math
-    R &= \frac{∑_{k∈K}(#k-#p(k, R))}{∑_{k∈K}(#r-1)}\\
-    P &= \frac{∑_{r∈R}(#r-#p(r, K))}{∑_{r∈R}(#r-1)}\\
+    R &= \frac{∑_{k∈K}(\#k-\#p(k, R))}{∑_{k∈K}(\#k-1)}\\
+    P &= \frac{∑_{r∈R}(\#r-\#p(r, K))}{∑_{r∈R}(\#r-1)}\\
     F &= 2*\frac{PR}{P+R}
     ```
     with `$p(x, E)=\{x∩A|A∈E\}$`
@@ -163,8 +163,8 @@ def b_cubed(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, 
     Compute the B³ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
     clustering`, that is
     ```math
-    R &= \frac{∑_{k∈K}∑_{r∈R}\frac{(#k∩r)²}{#k}}{∑_{k∈K}#k}\\
-    P &= \frac{∑_{r∈R}∑_{k∈K}\frac{(#r∩k)²}{#r}}{∑_{r∈R}#r}\\
+    R &= \frac{∑_{k∈K}∑_{\∈R}\frac{(\#k∩r)²}{#k}}{∑_{k∈K}\#k}\\
+    P &= \frac{∑_{r∈R}∑_{k∈K}\frac{(\#r∩k)²}{#r}}{∑_{r∈R}\#r}\\
     F &= 2*\frac{PR}{P+R}
     ```
     '''
@@ -176,10 +176,55 @@ def b_cubed(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, 
     return R, P, F
 
 
-def ceaf(response: ty.List[ty.Set], key: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
-    '''Compute the CEAF $(P, R, F₁)$ scores for a `#response` clustering given a `#key`
-       clustering`.'''
-    mentions = sorted(m for c in key for m in c)
+def ceaf(key: ty.List[ty.Set],
+         response: ty.List[ty.Set],
+         score: ty.Callable[[ty.Set, ty.Set], float]) -> ty.Tuple[float, float, float]:
+    r'''
+    Compute the CEAF `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
+    clustering` using the `#score` alignment score function, that is
+    ```math
+    R &= \frac{∑_{k∈K}C(k, A(k))}{∑_{k∈K}\#k}\\
+    P &=  \frac{∑_{r∈R}C(r, A⁻¹(r))}{∑_{r∈R}\#r}\\
+    F &= 2*\frac{PR}{P+R}
+    ```
+    Where `$C$` is `#score` and `$A$` is the one-to-one mapping from key clusters to
+    response clusters that maximizes `$∑_{k∈K}C(k, A(k))$`.
+    '''
+    cost_matrix = np.array([[-score(k, r) for r in response] for k in key])
+    row_ind, col_ind = linear_sum_assignment(cost_matrix)
+    total_score = -cost_matrix[row_ind, col_ind].sum()
+    print(total_score, sum(len(k) for k in key))
+    R = total_score/sum(score(k, k) for k in key)
+    P = total_score/sum(score(r, r) for r in response)
+    F = (2*P*R)/(P+R)
+    return R, P, F
+
+
+def ceaf_m(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
+    r'''
+    Compute the CEAF_m `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
+    clustering`, that is the CEAF score for the score function
+    ```math
+    S: (k, r) ⟼ \#k∩r
+    ```
+    '''
+    def intersect_score(k, r):
+        return len(k.intersection(r))
+    return ceaf(key, response, intersect_score)
+
+
+def ceaf_e(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
+    r'''
+    Compute the CEAF_m `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
+    clustering`, that is the CEAF score for the `$Φ₄$` score function
+    (aka the Sørensen–Dice coefficient).
+    ```math
+    Φ₄: (k, r) ⟼ \frac{2×\#k∩r}{\#k+\#r}
+    ```
+    '''
+    def Φ_4(k, r):
+        return 2*len(k.intersection(r))/(len(k)+len(r))
+    return ceaf(key, response, Φ_4)
 
 
 def main_entry_point(argv=None):
