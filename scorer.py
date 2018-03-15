@@ -123,11 +123,14 @@ def clusters_from_json(fp) -> ty.List[ty.Set]:
 
 
 def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set]:
-    '''Return the partition of `#cluster` induced by `#partition`, that is
-       \[ \{C∩A|A∈P\} ∪ \{\{x\}|x∈C∖∪P\} \]
-       Where $C$ is `#cluster` and $P$ is `#partition`.
+    r'''
+    Return the partition of `#cluster` induced by `#partition`, that is
+    ```math
+    \{C∩A|A∈P\} ∪ \{\{x\}|x∈C∖∪P\}
+    ```
+    Where $C$ is `#cluster` and $P$ is `#partition`.
 
-       This assume that the elements of `#partition` are indeed pairwise disjoint'''
+    This assume that the elements of `#partition` are indeed pairwise disjoint'''
     remaining = set(cluster)
     for a in partition:
         common = remaining.intersection(a)
@@ -139,31 +142,38 @@ def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set
 
 
 def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
-    '''Compute the MUC $(R, P, F₁)$ scores for a `#response` clustering given a `#key`
-       clustering`.'''
+    r'''
+    Compute the MUC `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
+    clustering`, that is
+    ```math
+    R &= \frac{∑_{k∈K}(#k-#p(k, R))}{∑_{k∈K}(#r-1)}\\
+    P &= \frac{∑_{r∈R}(#r-#p(r, K))}{∑_{r∈R}(#r-1)}\\
+    F &= 2*\frac{PR}{P+R}
+    ```
+    with `$p(x, E)=\{x∩A|A∈E\}$`
+    '''
     R = sum(len(k) - sum(1 for _ in trace(k, response)) for k in key)/sum(len(k)-1 for k in key)
     P = sum(len(r)-sum(1 for _ in trace(r, key)) for r in response)/sum(len(r)-1 for r in response)
     F = (2*P*R)/(P+R)
     return R, P, F
 
 
-
-def b_cubed(response: ty.List[ty.Set], key: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
-    '''Compute the B³ $(P, R, F₁)$ scores for a `#response` clustering given a `#key`
-       clustering`.'''
-    mentions = set.union(*key)
-    P = 0
-    R = 0
-    for m in mentions:
-        r_m = next(r for r in response if m in r)
-        k_m = next(k for k in key if m in k)
-        common = len(r_m.intersection(k_m))
-        P += common/len(r_m)
-        R += common/len(k_m)
-    P /= len(mentions)
-    R /= len(mentions)
-    F = 2*(P*R)/(P+R)
-    return P, R, F
+def b_cubed(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
+    '''
+    Compute the B³ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
+    clustering`, that is
+    ```math
+    R &= \frac{∑_{k∈K}∑_{r∈R}\frac{(#k∩r)²}{#k}}{∑_{k∈K}#k}\\
+    P &= \frac{∑_{r∈R}∑_{k∈K}\frac{(#r∩k)²}{#r}}{∑_{r∈R}#r}\\
+    F &= 2*\frac{PR}{P+R}
+    ```
+    '''
+    R = (sum(len(k.intersection(r))**2/len(k) for k in key for r in response) /
+         sum(len(k) for k in key))
+    P = (sum(len(r.intersection(k))**2/len(r) for r in response for k in key) /
+         sum(len(r) for r in response))
+    F = (2*P*R)/(P+R)
+    return R, P, F
 
 
 def ceaf(response: ty.List[ty.Set], key: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
