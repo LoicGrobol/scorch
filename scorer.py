@@ -263,7 +263,7 @@ def blanc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, fl
     T_n = N_k.intersection(N_r)
 
     R_c, P_c = len(T_c)/len(C_k), len(T_c)/len(C_r)
-    half_F_c = P_c*R_c/(P_c+R_c)
+    half_F_c = P_c*R_c/(P_c+R_c)  # No need to multiply this by 2 to divide right after
 
     R_n, P_n = len(T_n)/len(N_k), len(T_n)/len(N_r)
     half_F_n = P_n*R_n/(P_n+R_n)
@@ -271,24 +271,24 @@ def blanc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, fl
     return (R_c+R_n)/2, (P_c+P_n)/2, half_F_c+half_F_n
 
 
-def main_entry_point(argv=None):
-    arguments = docopt(__doc__, version=__version__, argv=argv)
-    # Since there are no support for default positional arguments in
-    # docopt yet. Might be useful for complex default values, too
-    if arguments['<out-file>'] is None:
-        arguments['<out-file>'] = '-'
-
-    with smart_open(arguments['<sys-input>']) as in_stream:
-        sys_clusters = clusters_from_json(in_stream)
-
-    with smart_open(arguments['<gold-input>']) as in_stream:
-        gold_clusters = clusters_from_json(in_stream)
-
-    P, R, F = muc(sys_clusters, gold_clusters)
-
-    with smart_open(arguments['<out-file>'], 'w') as out_stream:
-        out_stream.write(f'MUC Score\nP: {P}\tR: {R}\tF₁: {F}\n')
-
-
-if __name__ == '__main__':
-    sys.exit(main_entry_point())
+# def main_entry_point(argv=None):
+#     arguments = docopt(__doc__, version=__version__, argv=argv)
+#     # Since there are no support for default positional arguments in
+#     # docopt yet. Might be useful for complex default values, too
+#     if arguments['<out-file>'] is None:
+#         arguments['<out-file>'] = '-'
+#
+#     with smart_open(arguments['<sys-input>']) as in_stream:
+#         sys_clusters = clusters_from_json(in_stream)
+#
+#     with smart_open(arguments['<gold-input>']) as in_stream:
+#         gold_clusters = clusters_from_json(in_stream)
+#
+#     R, P, F = muc(sys_clusters, gold_clusters)
+#
+#     with smart_open(arguments['<out-file>'], 'w') as out_stream:
+#         out_stream.write(f'MUC Score\nP: {P}\tR: {R}\tF₁: {F}\n')
+#
+#
+# if __name__ == '__main__':
+#     sys.exit(main_entry_point())
