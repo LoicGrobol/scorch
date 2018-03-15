@@ -40,3 +40,17 @@ def test_b_cubed_basic(Key, Response):
     # is actually only true if we take their rounding of `0.42` for `R` and round `F` to two
     # decimals, too. Using a non-rounded `R`, `F` rounds to `0.45` instead
     assert round(F, 2) == pytest.approx(0.45)
+
+
+def test_ceaf_m_basic(Key, Response):
+    R, P, F = scorer.ceaf_m(Key, Response)
+    assert R == pytest.approx(4/7)
+    assert P == pytest.approx(0.50)
+    assert round(F, 2) == pytest.approx(0.53)
+
+
+def test_ceaf_e_basic(Key, Response):
+    R, P, F = scorer.ceaf_e(Key, Response)
+    assert R == pytest.approx(0.65)
+    assert P == pytest.approx((4/5+1/2)/3)
+    assert round(F, 2) == pytest.approx(0.52)
