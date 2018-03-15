@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
-r"""Compute CoNLL scores for coreference
+r"""Compute CoNLL scores for coreference clustering as recommended by
+*Scoring Coreference Partitions of Predicted Mentions: A Reference
+Implementation* (Pradhan et al., 2014)
 
 Usage:
   score <sys-file> <gold-file> [<out-file>]
@@ -71,7 +73,7 @@ def smart_open(filename: str = None, mode: str = 'r', *args, **kwargs):
 
 
 def greedy_clustering(links: ty.Iterable[ty.Tuple[ty.Hashable, ty.Hashable]]) -> ty.List[ty.Set]:
-    '''Create clusters from a set of links with greedy merge.'''
+    '''Create transitive closure clusters from a set of edges.'''
     triaged = dict()  # type: ty.Dict[ty.Hashable, int]
     next_n = 0
     for foot, head in links:
@@ -88,7 +90,7 @@ def greedy_clustering(links: ty.Iterable[ty.Tuple[ty.Hashable, ty.Hashable]]) ->
             if h_cluster is None:
                 triaged[head] = f_cluster
             else:
-                if f_cluster != h_cluster:  # merge
+                if f_cluster != h_cluster:  # merge `f_cluster` and `h_cluster`
                     for e, c in triaged.items():
                         if c == f_cluster:
                             triaged[e] = h_cluster
@@ -136,19 +138,14 @@ def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set
         yield set((x,))
 
 
-def muc(response: ty.List[ty.Set], key: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
-    '''Compute the MUC $(P, R, F₁)$ scores for a `#response` clustering given a `#key`
+def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
+    '''Compute the MUC $(R, P, F₁)$ scores for a `#response` clustering given a `#key`
        clustering`.'''
-    cover_size = sum(common - 1
-                     for r in response if len(r) > 1
-                     for k in key if len(k) > 1
-                     for common in (r.intersection(k),) if common)
-    response_size = sum(len(r) - 1 for r in response)
-    key_size = sum(len(k) - 1 for k in key)
-    P = cover_size/response_size
-    R = cover_size/key_size
-    F = 2*cover_size/(response_size+key_size)
-    return P, R, F
+    R = sum(len(k) - sum(1 for _ in trace(k, response)) for k in key)/sum(len(k)-1 for k in key)
+    P = sum(len(r)-sum(1 for _ in trace(r, key)) for r in response)/sum(len(r)-1 for r in response)
+    F = (2*P*R)/(P+R)
+    return R, P, F
+
 
 
 def b_cubed(response: ty.List[ty.Set], key: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
