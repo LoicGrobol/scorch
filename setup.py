@@ -10,9 +10,9 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3.6',
     ],
-    packages=['scorer'],
+    packages=['scorch'],
     install_requires=[
-        'docop',
+        'docopt',
         'scipy',
         'numpy',
     ],
