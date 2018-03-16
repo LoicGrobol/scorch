@@ -20,7 +20,8 @@ The implementations of the various scores are as close as possible from the form
 
 
 ## License
-This licence (the so-called “MIT License”) applies to all the files in this repository.
+
+Unless otherwise specified (see <a href="#license-exceptions">below</a>), the following licence (the so-called “MIT License”) applies to all the files in this repository.
 See also [LICENSE.md](LICENSE.md).
 
 ```
@@ -41,3 +42,15 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FO
 DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```
+
+### Licence exceptions
+
+  - The official CoNLL scorer testcases located in [`tests/fixtures/conll/`](tests/fixtures/conll/) are distributed under the [Creative Commons Attribution ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/)
+    - **Copyright** © 2011- Sameer Pradhan pradhan <at> cemantix.org
+    - **Authors**
+        * Emili Sapena, Universitat Politècnica de Catalunya, http://www.lsi.upc.edu/~esapena, esapena <at> lsi.upc.edu
+        * Sameer Pradhan, http://cemantix.org, pradhan <at> cemantix.org
+        * Sebastian Martschat, sebastian.martschat <at> h-its.org
+        * Xiaoqiang Luo, xql <at> google.com
+    - **Origin** <http://conll.github.io/reference-coreference-scorers>
+    These files are taken verbatim from the 8.0.1 of the official CoNLL scorer at <https://github.com/conll/reference-coreference-scorers/releases>
