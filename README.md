@@ -48,9 +48,10 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
   - The official CoNLL scorer testcases located in [`tests/fixtures/conll/`](tests/fixtures/conll/) are distributed under the [Creative Commons Attribution ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/)
     - **Copyright** © 2011- Sameer Pradhan pradhan <at> cemantix.org
     - **Authors**
-        * Emili Sapena, Universitat Politècnica de Catalunya, http://www.lsi.upc.edu/~esapena, esapena <at> lsi.upc.edu
-        * Sameer Pradhan, http://cemantix.org, pradhan <at> cemantix.org
-        * Sebastian Martschat, sebastian.martschat <at> h-its.org
-        * Xiaoqiang Luo, xql <at> google.com
+        * Emili Sapena, Universitat Politècnica de Catalunya, <http://www.lsi.upc.edu/~esapena>, esapena \<at\> lsi.upc.edu
+        * Sameer Pradhan, http://cemantix.org, pradhan \<at\> cemantix.org
+        * Sebastian Martschat, sebastian.martschat \<at\> h-its.org
+        * Xiaoqiang Luo, xql \<at\> google.com
     - **Origin** <http://conll.github.io/reference-coreference-scorers>
+
     These files are taken verbatim from the 8.0.1 of the official CoNLL scorer at <https://github.com/conll/reference-coreference-scorers/releases>
