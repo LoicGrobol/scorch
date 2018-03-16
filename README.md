@@ -1,4 +1,4 @@
-Scorer
+Scorch<a id="footnote-0-1-backref" href="#footnote-0-1">¹</a>
 ======
 
 This is an alternative implementation of the coreference scorer for the CoNLL-2011/2012 shared tasks on coreference resolution.
@@ -6,6 +6,9 @@ This is an alternative implementation of the coreference scorer for the CoNLL-20
 It aims to be more straightforward than the [reference implementation][ref-scorer], while maintaining as much compatibility with it as possible.
 
 The implementations of the various scores are as close as possible from the formulas used by Pradhan et al. (2014).
+
+---
+<sub><a id="footnote-0-1" href="#footnote-0-1-backref">1.</a> **S**corer for **co**reference **ch**ains.</sub>
 
 [ref-scorer]: https://github.com/conll/reference-coreference-scorers
 

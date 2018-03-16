@@ -4,7 +4,7 @@ r"""Compute CoNLL scores for coreference clustering as recommended by
 Implementation* (Pradhan et al., 2014)
 
 Usage:
-  score <sys-file> <gold-file> [<out-file>]
+  scorch <sys-file> <gold-file> [<out-file>]
 
 Arguments:
   <sys-file>   system input file (json), `-` for standard input
@@ -27,10 +27,10 @@ The input files should be JSON files with a "type" key at top-level
 Of course the system and gold files should use the same set of mention identifiers…
 
 Example:
-  `score sys.json gold.json out`
+  `scorch sys.json gold.json out`
 """
 
-__version__ = 'score 0.0.0'
+__version__ = 'scorch 0.0.0'
 
 import contextlib
 import json
