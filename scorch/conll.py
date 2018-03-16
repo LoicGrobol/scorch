@@ -40,7 +40,7 @@ def parse_block(lines: ty.Iterable[str], column=-1) -> ty.Dict[str, ty.List[ty.T
     entities = defaultdict(list)
     dangling = defaultdict(list)
     for i, l in enumerate(lines):
-        row = l.split('\t')
+        row = l.split()
 
         try:
             row_n = row[2]
@@ -166,7 +166,8 @@ def main_entry_point(argv=None):
         documents = list(parse_file((l.strip() for l in in_stream)))
 
     for name, entities in documents:
-        out_path = arguments['<out-dir>']/f'{name}.json'
+        sanitized_name = name.replace('/', '-')
+        out_path = arguments['<out-dir>']/f'{sanitized_name}.json'
         with out_path.open('w') as out_stream:
             json.dump(entities, out_stream)
 
