@@ -12,6 +12,9 @@ from scipy.optimize import linear_sum_assignment
 def links_from_clusters(clusters: ty.Iterable[ty.Set]
                         ) -> ty.Tuple[ty.List[ty.Tuple[ty.Hashable, ty.Hashable]],
                                       ty.List[ty.Tuple[ty.Hashable, ty.Hashable]]]:
+    r'''
+    Return a `(coreference_links, non-coreference_links)` tuple corresponding to a clustering.
+    '''
     clusters_lst = list(clusters)
     elements = sorted(set.union(*clusters_lst))
     C = []
