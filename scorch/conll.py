@@ -169,7 +169,13 @@ def main_entry_point(argv=None):
         sanitized_name = name.replace('/', '-')
         out_path = arguments['<out-dir>']/f'{sanitized_name}.json'
         with out_path.open('w') as out_stream:
-            json.dump(entities, out_stream)
+            json.dump(
+                {
+                    'name': name,
+                    'type': 'clusters',
+                    'clusters': entities,
+                },
+                out_stream)
 
 
 if __name__ == '__main__':
