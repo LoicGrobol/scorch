@@ -1,5 +1,6 @@
 Scorch<a id="footnote-0-1-backref" href="#footnote-0-1">¹</a>
 ======
+[![Build Status](https://travis-ci.org/LoicGrobol/scorch.svg?branch=master)](https://travis-ci.org/LoicGrobol/scorch)
 
 This is an alternative implementation of the coreference scorer for the CoNLL-2011/2012 shared tasks on coreference resolution.
 
