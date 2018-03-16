@@ -42,7 +42,7 @@ import typing as ty
 
 import numpy as np
 
-from docopt import docopt
+from docopt import docopt 
 from scipy.optimize import linear_sum_assignment
 
 # Deal with piping output in a standard-compliant way
