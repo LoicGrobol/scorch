@@ -1,0 +1,11 @@
+language: python
+python:
+  - "3.6"
+  - "3.6-dev"  # 3.6 development branch
+  - "3.7-dev"  # 3.7 development branch
+
+install:
+  - python3 -m pip install .
+
+script:
+  - pytest # or py.test for Python versions 3.5 and below
