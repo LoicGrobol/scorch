@@ -91,7 +91,7 @@ def parse_document(lines: ty.Iterable[str], column=-1
         except ValueError as e:
             raise ValueError(
                 'Parse error in block {i}:\n{e}\n{block}'.format(i=i, e=e,
-                                                                block="\n".join(block)))
+                                                                 block="\n".join(block)))
         # Merge this block entities
         for e, mentions in block_entities.items():
             entities[e].extend([(i, start, end) for start, end in mentions])
@@ -100,12 +100,14 @@ def parse_document(lines: ty.Iterable[str], column=-1
 
 def parse_file(lines: ty.Iterable[str],
                column=-1,
-              ) -> ty.Iterable[ty.Tuple[str, ty.Dict[str, ty.List[ty.Tuple[int, str, str]]]]]:
-    '''Parse a CoNLL file, return document as tuples `(document_name, entities)` where
-       entities are mappings
-       ```
-       entity_id: [(block_number, mention_start, mention_end), …]
-       ```'''
+               ) -> ty.Iterable[ty.Tuple[str, ty.Dict[str, ty.List[ty.Tuple[int, str, str]]]]]:
+    '''
+    Parse a CoNLL file, return document as tuples `(document_name, entities)` where
+    entities are mappings
+    ```
+    entity_id: [(block_number, mention_start, mention_end), …]
+    ```
+    '''
     buffer = []
     for l in lines:
         if l.startswith('#'):

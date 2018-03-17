@@ -63,6 +63,6 @@ def test_blanc_basic(Key, Response):
     assert P == pytest.approx((2/8+8/20)/2)
     # Note: According to Pradhan et al. (2014), `assert round(F, 2) == pytest.approx(0.36)`
     # Here, as in B³, this is symptomatic of cascading rounding errors : if we don't round
-    # `$R_c$` to `0.22` before computing `$F_c$`, rounding `$F_c$` yields `0.24` instead of
+    # `$R_c$` to `0.22` before computing `$F_c$`, rounding `$F_c$` yields `0.24` instead of
     # `0.23`, which cascades to the final `$F_{BLANC}$`.
     assert round(F, 2) == pytest.approx(0.37)
