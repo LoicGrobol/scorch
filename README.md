@@ -46,7 +46,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 ### Licence exceptions
 
   - The official CoNLL scorer testcases located in [`tests/fixtures/conll/`](tests/fixtures/conll/) are distributed under the [Creative Commons Attribution ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/)
-    - **Copyright** © 2011- Sameer Pradhan pradhan <at> cemantix.org
+    - **Copyright** © 2011- Sameer Pradhan pradhan \<at\> cemantix.org
     - **Authors**
         * Emili Sapena, Universitat Politècnica de Catalunya, <http://www.lsi.upc.edu/~esapena>, esapena \<at\> lsi.upc.edu
         * Sameer Pradhan, http://cemantix.org, pradhan \<at\> cemantix.org

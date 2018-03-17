@@ -1,17 +1,17 @@
 #! /usr/bin/env python3
 r"""Convert CoNLL-2012 files to simple JSON.
 
-Usage:
+## Usage:
   conll <conll-file> [<out-dir>]
 
-Arguments:
+## Arguments:
   <conll-file>  input file (CoNLL-2012 format), `-` for standard input
   <out-dir>     directory for output [default: same as the input]
 
-Options:
+## Options:
   -h, --help  Show this screen.
 
-Example:
+## Example:
   `conll input.conll ./out/`
 """
 
