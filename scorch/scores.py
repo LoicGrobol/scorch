@@ -160,4 +160,10 @@ def blanc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, fl
         R_n, P_n = len(T_n)/len(N_k), len(T_n)/len(N_r)
         half_F_n = P_n*R_n/(P_n+R_n)
 
+    # Quirk: when GOLD (key) is unbalanced, we break the symmetry
+    if not C_k:
+        return R_n, P_n, 2*half_F_n
+    if not N_k:
+        return R_c, P_c, 2*half_F_c
+
     return (R_c+R_n)/2, (P_c+P_n)/2, half_F_c+half_F_n
