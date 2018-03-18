@@ -44,6 +44,10 @@ def parse_block(lines: ty.Iterable[str], column=-1) -> ty.Dict[str, ty.List[ty.T
 
         try:
             row_n = row[2]
+        except IndexError:  # Try to guess line number (mainly for non-complaint testcases)
+            row_n = str(i)
+
+        try:
             coref = row[column]
         except IndexError:
             raise ValueError(f'Badly formatted line: {l!r}')
