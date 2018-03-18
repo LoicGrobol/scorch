@@ -58,7 +58,11 @@ def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, floa
     P &= \frac{∑_{r∈R}(\#r-\#p(r, K))}{∑_{r∈R}(\#r-1)}\\
     F &= 2*\frac{PR}{P+R}
     ```
-    with `$p(x, E)=\{x∩A|A∈E\}$`
+    with `$p(x, E)=\{x∩A|A∈E\}$`.
+
+    In the edge case where all clusters in either `#key` or `#response` are singletons, `$P$`, `$R$`
+    and `$F$` are defined to be `$0$`, following the reference implementation (since singleton
+    clusters where not considered in Vilain et al. (1995)).
 
     Note: This implementation is significantly different from the reference one (despite
     implementing the formulae from Pradahan et al. (2014)) in that the reference use the ordering of
@@ -66,6 +70,9 @@ def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, floa
     each cluster, thus avoiding the issues that led Vilain et al. (1995) to define MUC by the
     formulae above.
     '''
+    # Edge case
+    if all(len(k) == 1 for k in key) or all(len(r) == 1 for r in response):
+        return 0., 0., 0.
     R = sum(len(k) - sum(1 for _ in trace(k, response)) for k in key)/sum(len(k)-1 for k in key)
     P = sum(len(r)-sum(1 for _ in trace(r, key)) for r in response)/sum(len(r)-1 for r in response)
     F = (2*P*R)/(P+R)
