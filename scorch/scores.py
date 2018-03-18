@@ -37,7 +37,8 @@ def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set
     ```
     Where `$C$` is `#cluster` and `$P$` is `#partition`.
 
-    This assume that the elements of `#partition` are indeed pairwise disjoint'''
+    This assume that the elements of `#partition` are indeed pairwise disjoint.
+    '''
     remaining = set(cluster)
     for a in partition:
         common = remaining.intersection(a)
@@ -50,7 +51,7 @@ def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set
 
 def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
-    Compute the MUC `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering`,
+    Compute the MUC `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is
     ```math
     R &= \frac{∑_{k∈K}(\#k-\#p(k, R))}{∑_{k∈K}(\#k-1)}\\
@@ -60,9 +61,9 @@ def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, floa
     with `$p(x, E)=\{x∩A|A∈E\}$`
 
     Note: This implementation is significantly different from the reference one (despite
-    implementing the formulae from Pradahan et al. (2014)) in that the reference use the ordering
-    of mentions in documents to consistently assign a non-problematic spanning tree (viz. a chain)
-    to each cluster, thus avoiding the issues that led Vilain et al. (1995) to define MUC by the
+    implementing the formulae from Pradahan et al. (2014)) in that the reference use the ordering of
+    mentions in documents to consistently assign a non-problematic spanning tree (viz. a chain) to
+    each cluster, thus avoiding the issues that led Vilain et al. (1995) to define MUC by the
     formulae above.
     '''
     R = sum(len(k) - sum(1 for _ in trace(k, response)) for k in key)/sum(len(k)-1 for k in key)
@@ -73,8 +74,8 @@ def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, floa
 
 def b_cubed(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
     '''
-    Compute the B³ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
-    clustering`, that is
+    Compute the B³ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
+    that is
     ```math
     R &= \frac{∑_{k∈K}∑_{\∈R}\frac{(\#k∩r)²}{#k}}{∑_{k∈K}\#k}\\
     P &= \frac{∑_{r∈R}∑_{k∈K}\frac{(\#r∩k)²}{#r}}{∑_{r∈R}\#r}\\
@@ -93,15 +94,15 @@ def ceaf(key: ty.List[ty.Set],
          response: ty.List[ty.Set],
          score: ty.Callable[[ty.Set, ty.Set], float]) -> ty.Tuple[float, float, float]:
     r'''
-    Compute the CEAF `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
-    clustering` using the `#score` alignment score function, that is
+    Compute the CEAF `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering
+    using the `#score` alignment score function, that is
     ```math
     R &= \frac{∑_{k∈K}C(k, A(k))}{∑_{k∈K}\#k}\\
     P &=  \frac{∑_{r∈R}C(r, A⁻¹(r))}{∑_{r∈R}\#r}\\
     F &= 2*\frac{PR}{P+R}
     ```
-    Where `$C$` is `#score` and `$A$` is the one-to-one mapping from key clusters to
-    response clusters that maximizes `$∑_{k∈K}C(k, A(k))$`.
+    Where `$C$` is `#score` and `$A$` is the one-to-one mapping from key clusters to response
+    clusters that maximizes `$∑_{k∈K}C(k, A(k))$`.
     '''
     cost_matrix = np.array([[-score(k, r) for r in response] for k in key])
     row_ind, col_ind = linear_sum_assignment(cost_matrix)
@@ -115,8 +116,8 @@ def ceaf(key: ty.List[ty.Set],
 
 def ceaf_m(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
-    Compute the CEAF_m `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
-    clustering`, that is the CEAF score for the `$Φ_3$` score function
+    Compute the CEAF_m `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
+    that is the CEAF score for the `$Φ_3$` score function
     ```math
     Φ_3: (k, r) ⟼ \#k∩r
     ```
@@ -129,13 +130,13 @@ def ceaf_m(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, f
 def ceaf_e(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
     Compute the CEAF_m `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
-    clustering`, that is the CEAF score for the `$Φ₄$` score function
-    (aka the Sørensen–Dice coefficient).
+    clustering`, that is the CEAF score for the `$Φ₄$` score function (aka the Sørensen–Dice
+    coefficient).
     ```math
     Φ₄: (k, r) ⟼ \frac{2×\#k∩r}{\#k+\#r}
+    ```
     Note: this use the original (Luo, 2005) definition as opposed to the (Pradhan et al. 2014) one
     which inlines the denominators.
-    ```
     '''
     def Φ_4(k, r):
         return 2*len(k.intersection(r))/(len(k)+len(r))
@@ -145,8 +146,13 @@ def ceaf_e(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, f
 # COMBAK: Check the numeric stability
 def blanc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
-    Return the BLANC `$(R, P, F)$` scores for a `#response` clustering given a `#key`
-    clustering`.
+    Return the BLANC `$(R, P, F)$` scores for a `#response` clustering given a `#key` clustering.
+
+    Note: To ensure the compliance with the reference implementation, the edge cases results are
+    those from Recasens and Hovy (2011) rather than from the more recent Luo et al. (2014) when
+    those two disagree. This has an effect for the N-6 testcase, where according to Luo et al.
+    (2014), BLANC should be `$\frac{0+F_n}{2}$` since `$C_k=∅$` and `$C_r≠∅$`, but according to
+    Recasens and Hovy (2011), BLANC should be `$F_n$`.
     '''
     # Edge case : a single mention in both `key` and `response` clusters
     # in that case, `C_k`, `C_r`, `N_k` and `N_r` are all empty, so we need a separate examination
