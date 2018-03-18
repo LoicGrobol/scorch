@@ -148,10 +148,16 @@ def blanc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, fl
     T_c = C_k.intersection(C_r)
     T_n = N_k.intersection(N_r)
 
-    R_c, P_c = len(T_c)/len(C_k), len(T_c)/len(C_r)
-    half_F_c = P_c*R_c/(P_c+R_c)  # No need to multiply this by 2 to divide right after
+    if not C_k or not C_r:
+        R_c, P_c, half_F_c = (1., 1., 1.) if C_k == C_r else (0., 0., 0.)
+    else:
+        R_c, P_c = len(T_c)/len(C_k), len(T_c)/len(C_r)
+        half_F_c = P_c*R_c/(P_c+R_c)
 
-    R_n, P_n = len(T_n)/len(N_k), len(T_n)/len(N_r)
-    half_F_n = P_n*R_n/(P_n+R_n)
+    if not N_k or not N_r:
+        R_n, P_n, half_F_n = (1., 1., 1.) if N_k == N_r else (0., 0., 0.)
+    else:
+        R_n, P_n = len(T_n)/len(N_k), len(T_n)/len(N_r)
+        half_F_n = P_n*R_n/(P_n+R_n)
 
     return (R_c+R_n)/2, (P_c+P_n)/2, half_F_c+half_F_n
