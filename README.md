@@ -6,7 +6,7 @@ This is an alternative implementation of the coreference scorer for the CoNLL-20
 
 It aims to be more straightforward than the [reference implementation][ref-scorer], while maintaining as much compatibility with it as possible.
 
-The implementations of the various scores are as close as possible from the formulas used by <a href="#pradhan2014scoring">Pradhan et al. (2014)</a>.
+The implementations of the various scores are as close as possible from the formulas used by <a href="#pradhan2014scoring">Pradhan et al. (2014)</a>, with the edge cases for BLANC taken from <a href="recasens2011BLANC">Recasens and Hovy (2011)</a>.
 
 ---
 <sub><a id="footnote-0-1" href="#footnote-0-1-backref">1.</a> **S**corer for **co**reference **ch**ains.</sub>
@@ -15,7 +15,9 @@ The implementations of the various scores are as close as possible from the form
 
 
 ## Sources
-  - <a id="pradhan2014scoring">**Scoring Coreference Partitions of Predicted Mentions: A Reference Implementation.**</a> Sameer Pradhan, Xiaoqiang Luo, Marta Recasens, Eduard Hovy, Vincent Ng and Michael Strube. *Proceedings of the 52nd Annual Meeting of the Association for Computational Linguistics*, Baltimore, MD, June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2006.pdf))
+  - <a id="pradhan2014scoring" />**Scoring Coreference Partitions of Predicted Mentions: A Reference Implementation.** Sameer Pradhan, Xiaoqiang Luo, Marta Recasens, Eduard Hovy, Vincent Ng and Michael Strube. *Proceedings of the 52nd Annual Meeting of the Association for Computational Linguistics*, Baltimore, MD, June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2006.pdf))
+  - <a id="recasens2011BLANC" />**BLANC: Implementing the Rand Index for Coreference Evaluation.** Marta Recasens and Eduard Hovy In: *Natural Language Engineering* 17 (4). Cambridge University Press, 2011.
+
   - The version of the Kuhn-Munkres algorithm used for the CEAF scores uses [scipy.optimize.linear_sum_assignment](https://docs.scipy.org/doc/latest/reference/generated/scipy.optimize.linear_sum_assignment.html), with $-ϕ_n$ as cost function.
 
 
