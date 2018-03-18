@@ -50,14 +50,20 @@ def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set
 
 def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
-    Compute the MUC `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
-    clustering`, that is
+    Compute the MUC `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering`,
+    that is
     ```math
     R &= \frac{∑_{k∈K}(\#k-\#p(k, R))}{∑_{k∈K}(\#k-1)}\\
     P &= \frac{∑_{r∈R}(\#r-\#p(r, K))}{∑_{r∈R}(\#r-1)}\\
     F &= 2*\frac{PR}{P+R}
     ```
     with `$p(x, E)=\{x∩A|A∈E\}$`
+
+    Note: This implementation is significantly different from the reference one (despite
+    implementing the formulae from Pradahan et al. (2014)) in that the reference use the ordering
+    of mentions in documents to consistently assign a non-problematic spanning tree (viz. a chain)
+    to each cluster, thus avoiding the issues that led Vilain et al. (1995) to define MUC by the
+    formulae above.
     '''
     R = sum(len(k) - sum(1 for _ in trace(k, response)) for k in key)/sum(len(k)-1 for k in key)
     P = sum(len(r)-sum(1 for _ in trace(r, key)) for r in response)/sum(len(r)-1 for r in response)
@@ -140,31 +146,36 @@ def ceaf_e(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, f
 def blanc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
     Return the BLANC `$(R, P, F)$` scores for a `#response` clustering given a `#key`
-    clustering`, that is.
+    clustering`.
     '''
+    # Edge case : a single mention in both `key` and `response` clusters
+    # in that case, `C_k`, `C_r`, `N_k` and `N_r` are all empty, so we need a separate examination
+    # of the mentions to know if we are very good or very bad.
+    if len(key) == len(response) == 1 and len(key[0]) == len(response[0]) == 1:
+        return (1., 1., 1.) if key[0] == response[0] else (0., 0., 0.)
+
     C_k, N_k = map(set, links_from_clusters(key))
     C_r, N_r = map(set, links_from_clusters(response))
 
-    T_c = C_k.intersection(C_r)
-    T_n = N_k.intersection(N_r)
+    TP_c = C_k.intersection(C_r)
+    TP_n = N_k.intersection(N_r)
 
     if not C_k or not C_r:
         R_c, P_c, half_F_c = (1., 1., 1.) if C_k == C_r else (0., 0., 0.)
     else:
-        R_c, P_c = len(T_c)/len(C_k), len(T_c)/len(C_r)
-        half_F_c = P_c*R_c/(P_c+R_c)
+        R_c, P_c = len(TP_c)/len(C_k), len(TP_c)/len(C_r)
+        half_F_c = len(TP_c)/(len(C_k)+len(C_r))
 
     if not N_k or not N_r:
         R_n, P_n, half_F_n = (1., 1., 1.) if N_k == N_r else (0., 0., 0.)
     else:
-        R_n, P_n = len(T_n)/len(N_k), len(T_n)/len(N_r)
-        half_F_n = P_n*R_n/(P_n+R_n)
+        R_n, P_n = len(TP_n)/len(N_k), len(TP_n)/len(N_r)
+        half_F_n = len(TP_n)/(len(N_k)+len(N_r))
 
-    # Quirk: when GOLD (key) is unbalanced and SYS is not, BLANC does not take what we did one the
-    # GOLD empty class into account
-    if C_r and N_r and not C_k:
+    # Edge cases
+    if not C_k and not C_r and (N_k or N_r):
         return R_n, P_n, 2*half_F_n
-    if C_r and N_r and not N_k:
+    if not N_k and not N_r and (C_k or C_r):
         return R_c, P_c, 2*half_F_c
 
     return (R_c+R_n)/2, (P_c+P_n)/2, half_F_c+half_F_n
