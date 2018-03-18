@@ -173,9 +173,9 @@ def blanc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, fl
         half_F_n = len(TP_n)/(len(N_k)+len(N_r))
 
     # Edge cases
-    if not C_k and not C_r and (N_k or N_r):
+    if not C_k:
         return R_n, P_n, 2*half_F_n
-    if not N_k and not N_r and (C_k or C_r):
+    if not N_k:
         return R_c, P_c, 2*half_F_c
 
     return (R_c+R_n)/2, (P_c+P_n)/2, half_F_c+half_F_n
