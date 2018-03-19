@@ -25,7 +25,7 @@ import sys
 
 import typing as ty
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from docopt import docopt
 
@@ -37,14 +37,17 @@ def parse_block(lines: ty.Iterable[str], column=-1) -> ty.Dict[str, ty.List[ty.T
     entity_id: [(mention_start, mention_end), …]
     ```
     '''
-    entities = defaultdict(list)
+    # We have to keep track of the order in which the entites are created (i.e.) the end of their
+    # first mention, since it will be used to determine which entity gets the metnion in case of
+    # duplication
+    entities = OrderedDict()
     dangling = defaultdict(list)
     for i, l in enumerate(lines):
         row = l.split()
 
         try:
             row_n = row[2]
-        except IndexError:  # Try to guess line number (mainly for non-complaint testcases)
+        except IndexError:  # Try to guess line number (mainly for non-compliant testcases)
             row_n = str(i)
 
         try:
@@ -59,12 +62,14 @@ def parse_block(lines: ty.Iterable[str], column=-1) -> ty.Dict[str, ty.List[ty.T
 
         for m in re.finditer(r'(\d+)\)', coref):
             try:
-                entities[m.group(1)].append((dangling[m.group(1)].pop(), row_n))
+                start = dangling[m.group(1)].pop()
             except IndexError:
                 raise ValueError(f'Unbalanced parentheses at line {i}: {l!r}')
+            entities.setdefault(m.group(1), []).append((start, row_n))
     if any(dangling.values()):
         raise ValueError(f'Dangling mentions at line {i}: {[e for e, v in dangling.items() if e]}')
-    return dict(entities)
+
+    return entities
 
 
 def split_blocks(lines: ty.Iterable[str]) -> ty.Iterable[ty.List[str]]:
@@ -88,7 +93,7 @@ def parse_document(lines: ty.Iterable[str], column=-1
     entity_id: [(block_number, mention_start, mention_end), …]
     ```
     '''
-    entities = defaultdict(list)
+    entities = OrderedDict()
     for i, block in enumerate(split_blocks(lines)):
         try:
             block_entities = parse_block(block)
@@ -98,7 +103,17 @@ def parse_document(lines: ty.Iterable[str], column=-1
                                                                  block="\n".join(block)))
         # Merge this block entities
         for e, mentions in block_entities.items():
-            entities[e].extend([(i, start, end) for start, end in mentions])
+            entities.setdefault(e, []).extend((i, start, end) for start, end in mentions)
+
+    # Deduplicate mentions : if a mention is in several entities, leave only to the entity that
+    # appeared first. If a mention appears several time in an entity, leave it only once
+    seen = set()
+    for ent, men in entities.items():
+        men = sorted((set(men)-seen))
+        if not men:
+            del entities[ent]
+        entities[ent] = men
+        seen.update(men)
     return dict(entities)
 
 
