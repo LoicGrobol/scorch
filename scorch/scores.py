@@ -80,7 +80,7 @@ def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, floa
 
 
 def b_cubed(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
-    '''
+    r'''
     Compute the B³ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is
     ```math
