@@ -75,7 +75,7 @@ def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, floa
         return 0., 0., 0.
     R = sum(len(k) - sum(1 for _ in trace(k, response)) for k in key)/sum(len(k)-1 for k in key)
     P = sum(len(r)-sum(1 for _ in trace(r, key)) for r in response)/sum(len(r)-1 for r in response)
-    F = (2*P*R)/(P+R)
+    F = (2*P*R)/(P+R) if P or R else 0
     return R, P, F
 
 
