@@ -114,7 +114,6 @@ def ceaf(key: ty.List[ty.Set],
     cost_matrix = np.array([[-score(k, r) for r in response] for k in key])
     row_ind, col_ind = linear_sum_assignment(cost_matrix)
     total_score = -cost_matrix[row_ind, col_ind].sum()
-    print(total_score, sum(len(k) for k in key))
     R = total_score/sum(score(k, k) for k in key)
     P = total_score/sum(score(r, r) for r in response)
     F = (2*P*R)/(P+R)
