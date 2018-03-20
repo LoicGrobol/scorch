@@ -17,7 +17,6 @@ The implementations of the various scores are as close as possible from the form
 ## Sources
   - <a id="pradhan2014scoring" />**Scoring Coreference Partitions of Predicted Mentions: A Reference Implementation.** Sameer Pradhan, Xiaoqiang Luo, Marta Recasens, Eduard Hovy, Vincent Ng and Michael Strube. *Proceedings of the 52nd Annual Meeting of the Association for Computational Linguistics*, Baltimore, MD, June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2006.pdf))
   - <a id="recasens2011BLANC" />**BLANC: Implementing the Rand Index for Coreference Evaluation.** Marta Recasens and Eduard Hovy In: *Natural Language Engineering* 17 (4). Cambridge University Press, 2011.
-
   - The version of the Kuhn-Munkres algorithm used for the CEAF scores uses [scipy.optimize.linear_sum_assignment](https://docs.scipy.org/doc/latest/reference/generated/scipy.optimize.linear_sum_assignment.html), with $-ϕ_n$ as cost function.
 
 
