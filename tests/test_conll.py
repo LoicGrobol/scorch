@@ -1,4 +1,6 @@
 '''Unit tests for `conll.py`.'''
+from collections import OrderedDict
+
 import pytest
 
 from scorch import conll  # noqa
@@ -91,8 +93,10 @@ def conll_file():
 
 
 def test_parse_block(block):
-    expected_entities = {'0': [('0', '1'), ('9', '9')],
-                         '1': [('3', '6')]}
+    expected_entities = OrderedDict([
+        ('0', [('0', '1'), ('9', '9')]),
+        ('1', [('3', '6')]),
+    ])
     entities = conll.parse_block(block)
     assert entities == expected_entities
 

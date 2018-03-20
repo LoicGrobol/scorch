@@ -37,9 +37,9 @@ def parse_block(lines: ty.Iterable[str], column=-1) -> ty.Dict[str, ty.List[ty.T
     entity_id: [(mention_start, mention_end), …]
     ```
     '''
-    # We have to keep track of the order in which the entites are created (i.e.) the end of their
-    # first mention, since it will be used to determine which entity gets the metnion in case of
-    # duplication
+    # We have to keep track of the order in which the entites are created (i.e.) the begining of
+    # their first mention, since it will be used to determine which entity gets the mention in case
+    # of duplication
     entities = OrderedDict()
     dangling = defaultdict(list)
     for i, l in enumerate(lines):
@@ -58,14 +58,17 @@ def parse_block(lines: ty.Iterable[str], column=-1) -> ty.Dict[str, ty.List[ty.T
             continue
 
         for m in re.finditer(r'\((\d+)', coref):
-            dangling[m.group(1)].append(row_n)
+            e = m.group(1)
+            if e not in entities:
+                entities[e] = []
+            dangling[e].append(row_n)
 
         for m in re.finditer(r'(\d+)\)', coref):
             try:
                 start = dangling[m.group(1)].pop()
             except IndexError:
                 raise ValueError(f'Unbalanced parentheses at line {i}: {l!r}')
-            entities.setdefault(m.group(1), []).append((start, row_n))
+            entities[m.group(1)].append((start, row_n))
     if any(dangling.values()):
         raise ValueError(f'Dangling mentions at line {i}: {[e for e, v in dangling.items() if e]}')
 
