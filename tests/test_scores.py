@@ -66,3 +66,8 @@ def test_blanc_basic(Key, Response):
     # `$R_c$` to `0.22` before computing `$F_c$`, rounding `$F_c$` yields `0.24` instead of
     # `0.23`, which cascades to the final `$F_{BLANC}$`.
     assert round(F, 2) == pytest.approx(0.37)
+
+
+def test_conll2012_basic(Key, Response):
+    score = scores.conll2012(Key, Response)
+    assert round(score, 2) == pytest.approx(0.46)
