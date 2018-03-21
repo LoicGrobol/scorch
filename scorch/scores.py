@@ -1,4 +1,5 @@
 '''CoNLL-2011/2012 scores for coreference detection.'''
+import math
 
 import itertools as it
 import typing as ty
@@ -6,6 +7,7 @@ import typing as ty
 import numpy as np
 
 from scipy.optimize import linear_sum_assignment
+
 
 # OPTIMIZE: This could be made faster by dealing separately with singletons
 # OPTIMIZE: This could be made faster (in average) by sorting `cluster_lst` by decreasing length
@@ -89,9 +91,9 @@ def b_cubed(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, 
     F &= 2*\frac{PR}{P+R}
     ```
     '''
-    R = (sum(len(k.intersection(r))**2/len(k) for k in key for r in response) /
+    R = (math.fsum(len(k.intersection(r))**2/len(k) for k in key for r in response) /
          sum(len(k) for k in key))
-    P = (sum(len(r.intersection(k))**2/len(r) for r in response for k in key) /
+    P = (math.fsum(len(r.intersection(k))**2/len(r) for r in response for k in key) /
          sum(len(r) for r in response))
     F = (2*P*R)/(P+R)
     return R, P, F
@@ -114,8 +116,8 @@ def ceaf(key: ty.List[ty.Set],
     cost_matrix = np.array([[-score(k, r) for r in response] for k in key])
     row_ind, col_ind = linear_sum_assignment(cost_matrix)
     total_score = -cost_matrix[row_ind, col_ind].sum()
-    R = total_score/sum(score(k, k) for k in key)
-    P = total_score/sum(score(r, r) for r in response)
+    R = total_score/math.fsum(score(k, k) for k in key)
+    P = total_score/math.fsum(score(r, r) for r in response)
     F = (2*P*R)/(P+R)
     return R, P, F
 
