@@ -20,7 +20,7 @@ import math
 import itertools as it
 import typing as ty
 
-from statistics import average, harmonic_mean
+from statistics import mean, harmonic_mean
 
 import numpy as np
 
@@ -218,4 +218,4 @@ def conll2012(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> float:
     Return the CoNLL-2012 scores for a `#response` clustering given a `#key` clustering, that is,
     the average of the MUC, B³ and CEAF_e scores.
     '''
-    return average((metric(key, response)[2] for metric in (muc, b_cubed, ceaf_e)))
+    return mean((metric(key, response)[2] for metric in (muc, b_cubed, ceaf_e)))
