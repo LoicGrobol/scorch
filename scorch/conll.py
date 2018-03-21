@@ -12,7 +12,7 @@ r"""Convert CoNLL-2012 files to simple JSON.
   -h, --help  Show this screen.
 
 ## Example:
-  `conll input.conll ./out/`
+  `conll input.conll out.json`
 """
 
 __version__ = 'conll 0.0.0'
@@ -117,7 +117,7 @@ def parse_document(lines: ty.Iterable[str], column=-1
             del entities[ent]
         entities[ent] = men
         seen.update(men)
-    return dict(entities)
+    return dict(entities)  # No need to keep an OrderedDict after deduplication
 
 
 def parse_file(lines: ty.Iterable[str],

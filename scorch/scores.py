@@ -104,7 +104,7 @@ def b_cubed(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, 
     Compute the B³ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is
     ```math
-    R &= \frac{∑_{k∈K}∑_{\∈R}\frac{(\#k∩r)²}{#k}}{∑_{k∈K}\#k}\\
+    R &= \frac{∑_{k∈K}∑_{r∈R}\frac{(\#k∩r)²}{#k}}{∑_{k∈K}\#k}\\
     P &= \frac{∑_{r∈R}∑_{k∈K}\frac{(\#r∩k)²}{#r}}{∑_{r∈R}\#r}\\
     F &= 2*\frac{PR}{P+R}
     ```
