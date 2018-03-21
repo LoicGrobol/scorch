@@ -82,7 +82,7 @@ def smart_open(filename: str = None, mode: str = 'r', *args, **kwargs):
 
 
 def greedy_clustering(links: ty.Iterable[ty.Tuple[ty.Hashable, ty.Hashable]]) -> ty.List[ty.Set]:
-    '''Create transitive closure clusters from a set of edges.'''
+    '''Get connected component clusters from a set of edges.'''
     clusters = dict()  # type: ty.Dict[ty.Hashable, ty.List]
     heads = dict()  # type: ty.Dict[ty.Hashable, ty.Hashable]
     for source, target in links:
