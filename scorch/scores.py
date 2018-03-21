@@ -1,5 +1,6 @@
 '''CoNLL-2011/2012 scores for coreference detection.'''
 import math
+import statistics
 
 import itertools as it
 import typing as ty
@@ -77,7 +78,7 @@ def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, floa
         return 0., 0., 0.
     R = sum(len(k) - sum(1 for _ in trace(k, response)) for k in key)/sum(len(k)-1 for k in key)
     P = sum(len(r)-sum(1 for _ in trace(r, key)) for r in response)/sum(len(r)-1 for r in response)
-    F = (2*P*R)/(P+R) if P or R else 0
+    F = statistics.harmonic_mean((R, P))
     return R, P, F
 
 
@@ -95,7 +96,7 @@ def b_cubed(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, 
          sum(len(k) for k in key))
     P = (math.fsum(len(r.intersection(k))**2/len(r) for r in response for k in key) /
          sum(len(r) for r in response))
-    F = (2*P*R)/(P+R)
+    F = statistics.harmonic_mean((R, P))
     return R, P, F
 
 
@@ -118,7 +119,7 @@ def ceaf(key: ty.List[ty.Set],
     total_score = -cost_matrix[row_ind, col_ind].sum()
     R = total_score/math.fsum(score(k, k) for k in key)
     P = total_score/math.fsum(score(r, r) for r in response)
-    F = (2*P*R)/(P+R)
+    F = statistics.harmonic_mean((R, P))
     return R, P, F
 
 
