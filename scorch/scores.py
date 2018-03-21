@@ -213,9 +213,9 @@ def blanc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, fl
     return (R_c+R_n)/2, (P_c+P_n)/2, half_F_c+half_F_n
 
 
-def conll2012(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
+def conll2012(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> float:
     r'''
     Return the CoNLL-2012 scores for a `#response` clustering given a `#key` clustering, that is,
     the average of the MUC, B³ and CEAF_e scores.
     '''
-    return average((metric(key, response) for metric in (muc, b_cubed, ceaf_e)))
+    return average((metric(key, response)[2] for metric in (muc, b_cubed, ceaf_e)))
