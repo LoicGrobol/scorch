@@ -84,18 +84,22 @@ def smart_open(filename: str = None, mode: str = 'r', *args, **kwargs):
 def greedy_clustering(links: ty.Iterable[ty.Tuple[ty.Hashable, ty.Hashable]]) -> ty.List[ty.Set]:
     '''Create transitive closure clusters from a set of edges.'''
     clusters = dict()  # type: ty.Dict[ty.Hashable, ty.List]
+    heads = dict()  # type: ty.Dict[ty.Hashable, ty.Hashable]
     for source, target in links:
-        source_cluster = clusters.setdefault(source, [source])
-        target_cluster = clusters.setdefault(target, None)
-        if target_cluster is None:
-            clusters[target] = source_cluster
+        source_head = heads.setdefault(source, source)
+        source_cluster = clusters.setdefault(source_head, [source_head])
+
+        target_head = heads.setdefault(target, None)
+        if target_head is None:
+            heads[target] = source_head
             source_cluster.append(target)
-        elif target_cluster is not source_cluster:
-            for e in target_cluster:
-                clusters[e] = source_cluster
-            source_cluster.extend(target_cluster)
-    unique = set(tuple(c) for c in clusters.values())  # This is one of the most irritating points in Python
-    return [set(c) for c in unique]
+        elif target_head is not source_head:  # Merge `target`'s cluster into `source`'s'
+            for e in clusters[target_head]:
+                heads[e] = source_head
+            source_cluster.extend(clusters[target_head])
+            del clusters[target_head]
+
+    return [set(c) for c in clusters.values()]
 
 
 def clusters_from_graph(nodes: ty.Iterable[ty.Hashable],
