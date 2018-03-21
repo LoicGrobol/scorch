@@ -82,7 +82,20 @@ def smart_open(filename: str = None, mode: str = 'r', *args, **kwargs):
 
 
 def greedy_clustering(links: ty.Iterable[ty.Tuple[ty.Hashable, ty.Hashable]]) -> ty.List[ty.Set]:
-    '''Get connected component clusters from a set of edges.'''
+    r'''
+    Get connected component clusters from a set of edges.
+
+    This is basically done with depth 1 [disjoint-sets][1], which seemed a good tradeoff between
+    performance and readability. If performance is an issue, consider using e.g. the [incremental
+    connected component algorithm][2] found in Boost Graph.
+
+    Even better: don't rely on this and preprocess your data using a more clever clustering
+    procedure, e.g. with [NetworkX][3].
+
+    [1]: https://en.wikipedia.org/wiki/Disjoint-set_data_structure
+    [2]: http://www.boost.org/doc/libs/1_66_0/libs/graph/doc/incremental_components.html
+    [3]: https://networkx.github.io/documentation/networkx-1.9.1/reference/algorithms.mst.html
+    '''
     clusters = dict()  # type: ty.Dict[ty.Hashable, ty.List]
     heads = dict()  # type: ty.Dict[ty.Hashable, ty.Hashable]
     for source, target in links:
