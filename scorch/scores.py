@@ -20,7 +20,7 @@ import math
 import itertools as it
 import typing as ty
 
-from statistics import harmonic_mean
+from statistics import average, harmonic_mean
 
 import numpy as np
 
@@ -211,3 +211,11 @@ def blanc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, fl
         return R_c, P_c, 2*half_F_c
 
     return (R_c+R_n)/2, (P_c+P_n)/2, half_F_c+half_F_n
+
+
+def conll2012(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
+    r'''
+    Return the CoNLL-2012 scores for a `#response` clustering given a `#key` clustering, that is,
+    the average of the MUC, B³ and CEAF_e scores.
+    '''
+    return average((metric(key, response) for metric in (muc, b_cubed, ceaf_e)))
