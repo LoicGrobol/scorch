@@ -27,13 +27,14 @@ The input files should be JSON files with a "type" key at top-level
 Of course the system and gold files should use the same set of mention identifiers…
 
 Example:
-  `scorch sys.json gold.json out.txt`
+  `scorch gold.json sys.json out.txt`
 """
 
 __version__ = 'scorch 0.0.0'
 
 import contextlib
 import json
+import pathlib
 import signal
 import sys
 
@@ -41,7 +42,19 @@ import typing as ty
 
 from docopt import docopt
 
-from . import scores
+
+# Usual frobbing of packages, due to Python's insane importing policy
+if __name__ == "__main__" and __package__ is None:
+    package_root = pathlib.Path(__file__).resolve().parents[1]
+    sys.path.insert(0, str(package_root))
+    import scorch  # noqa
+    __package__ = "scorch"
+
+try:
+    from . import scores
+except ImportError:
+    from scorch import scores
+
 
 # Deal with piping output in a standard-compliant way
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -140,16 +153,16 @@ def main_entry_point(argv=None):
     if arguments['<out-file>'] is None:
         arguments['<out-file>'] = '-'
 
-    with smart_open(arguments['<gold-input>']) as in_stream:
+    with smart_open(arguments['<gold-file>']) as in_stream:
         gold_clusters = clusters_from_json(in_stream)
 
-    with smart_open(arguments['<sys-input>']) as in_stream:
+    with smart_open(arguments['<sys-file>']) as in_stream:
         sys_clusters = clusters_from_json(in_stream)
 
     with smart_open(arguments['<out-file>'], 'w') as out_stream:
-        for metric, name in METRICS:
+        for name, metric in METRICS:
             P, R, F = metric(gold_clusters, sys_clusters)
-            out_stream.write(f'{name} Score\nP: {P}\tR: {R}\tF₁: {F}\n')
+            out_stream.write(f'{name}:\tP={P}\tR={R}\tF₁={F}\n')
         conll_score = scores.conll2012(gold_clusters, sys_clusters)
         out_stream.write(f'CoNLL-2012 average score: {conll_score}\n')
 
