@@ -145,7 +145,7 @@ def ceaf(key: ty.Sequence[ty.Set],
 def ceaf_m(key: ty.Sequence[ty.Set],
            response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
-    Compute the CEAF_m `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
+    Compute the CEAFₘ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is the CEAF score for the `$Φ_3$` score function
     ```math
     Φ_3: (k, r) ⟼ \#k∩r
@@ -159,7 +159,7 @@ def ceaf_m(key: ty.Sequence[ty.Set],
 def ceaf_e(key: ty.Sequence[ty.Set],
            response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
-    Compute the CEAF_m `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
+    Compute the CEAFₑ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
     clustering`, that is the CEAF score for the `$Φ₄$` score function (aka the Sørensen–Dice
     coefficient).
     ```math
@@ -221,6 +221,6 @@ def blanc(key: ty.Sequence[ty.Set],
 def conll2012(key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]) -> float:
     r'''
     Return the CoNLL-2012 scores for a `#response` clustering given a `#key` clustering, that is,
-    the average of the MUC, B³ and CEAF_e scores.
+    the average of the MUC, B³ and CEAFₑ scores.
     '''
     return mean((metric(key, response)[2] for metric in (muc, b_cubed, ceaf_e)))
