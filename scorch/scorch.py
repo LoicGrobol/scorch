@@ -3,31 +3,21 @@ r"""Compute CoNLL scores for coreference clustering as recommended by
 *Scoring Coreference Partitions of Predicted Mentions: A Reference
 Implementation* (Pradhan et al., 2014)
 
-Usage:
+## Usage:
   scorch <gold> <sys> [<out-file>]
 
-Arguments:
-  <gold>      gold input file (json), `-` for standard input
-  <sys>       system input file (json), `-` for standard input
+## Arguments:
+  <gold>      gold input file (json) or directory, `-` for standard input
+  <sys>       system input file (json) or directory, `-` for standard input
   <out-file>  output file (text), `-` for standard output [default: -]
 
-Options:
-  -h, --help  Show this screen.
+## Options:
+  -h, --help       Show this screen.
 
-Formats
-The input files should be JSON files with a "type" key at top-level
-  - If "type" if "graph", then top-level should have at top-level
-    - A "mentions" key containing a list of all mention identifiers
-    - A "links" key containing a list of pairs of corefering mention
-      identifiers
-  - If "type" is "clusters", then top-level should have a "clusters" key
-    containing a mapping from clusters ids to cluster contents (as lists of
-    mention identifiers).
 
-Of course the system and gold files should use the same set of mention identifiers…
-
-Example:
+## Example:
   `scorch gold.json sys.json out.txt`
+  `scorch gold/ sys/ out.txt`
 """
 
 __version__ = 'scorch 0.0.0'
@@ -146,6 +136,20 @@ def clusters_from_json(fp) -> ty.List[ty.Set]:
     raise ValueError('Unsupported input format')
 
 
+def process_files(gold_fp, sys_fp) -> ty.Iterable[str]:
+    gold_clusters = clusters_from_json(gold_fp)
+    sys_clusters = clusters_from_json(sys_fp)
+    for name, metric in METRICS:
+        P, R, F = metric(gold_clusters, sys_clusters)
+        yield f'{name}:\tP={P}\tR={R}\tF₁={F}\n'
+    conll_score = scores.conll2012(gold_clusters, sys_clusters)
+    yield f'CoNLL-2012 average score: {conll_score}\n'
+
+
+def process_dirs(gold_dir, sys_dir) -> ty.Iterable[str]:
+
+
+
 def main_entry_point(argv=None):
     arguments = docopt(__doc__, version=__version__, argv=argv)
     # Since there are no support for default positional arguments in
@@ -153,18 +157,11 @@ def main_entry_point(argv=None):
     if arguments['<out-file>'] is None:
         arguments['<out-file>'] = '-'
 
-    with smart_open(arguments['<gold>']) as in_stream:
-        gold_clusters = clusters_from_json(in_stream)
-
-    with smart_open(arguments['<sys>']) as in_stream:
-        sys_clusters = clusters_from_json(in_stream)
-
-    with smart_open(arguments['<out-file>'], 'w') as out_stream:
-        for name, metric in METRICS:
-            P, R, F = metric(gold_clusters, sys_clusters)
-            out_stream.write(f'{name}:\tP={P}\tR={R}\tF₁={F}\n')
-        conll_score = scores.conll2012(gold_clusters, sys_clusters)
-        out_stream.write(f'CoNLL-2012 average score: {conll_score}\n')
+    with contextlib.ExitStack() as stack:
+        gold_stream = stack.enter_context(smart_open(arguments['<gold>']))
+        sys_stream = stack.enter_context(smart_open(arguments['<sys>']))
+        out_stream = stack.enter_context(smart_open(arguments['<out-file>'], 'w'))
+        out_stream.writelines(process_files(gold_stream, sys_stream))
 
 
 if __name__ == '__main__':

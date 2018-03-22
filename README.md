@@ -13,6 +13,30 @@ The implementations of the various scores are as close as possible from the form
 
 [ref-scorer]: https://github.com/conll/reference-coreference-scorers
 
+## Formats
+### Single document
+The input files should be JSON files with a "type" key at top-level
+  - If "type" if "graph", then top-level should have at top-level
+    - A "mentions" key containing a list of all mention identifiers
+    - A "links" key containing a list of pairs of corefering mention
+      identifiers
+  - If "type" is "clusters", then top-level should have a "clusters" key containing a mapping from
+    clusters ids to cluster contents (as lists of mention identifiers).
+
+Of course the system and gold files should use the same set of mention identifiers…
+
+### Multiple documents
+If the inputs to directories, files with the same base name (excluding extension) as those present
+in the gold directory are expected to be present in the sys directory, with exactly one sys file for
+each gold file.
+In that case, the output scores will be the means of the individual files scores,
+ponderated by the relative numbers of
+
+  - Gold mentions/links for Recall
+  - System mentions/links for Precision
+
+The global F₁-scores are then the usual harmonic means of these.
+
 
 ## Sources
   - <a id="pradhan2014scoring" />**Scoring Coreference Partitions of Predicted Mentions: A Reference Implementation.** Sameer Pradhan, Xiaoqiang Luo, Marta Recasens, Eduard Hovy, Vincent Ng and Michael Strube. *Proceedings of the 52nd Annual Meeting of the Association for Computational Linguistics*, Baltimore, MD, June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2006.pdf))
