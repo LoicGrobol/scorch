@@ -37,7 +37,6 @@ import json
 import signal
 import sys
 
-from collections import defaultdict
 import typing as ty
 
 from docopt import docopt
