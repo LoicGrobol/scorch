@@ -4,12 +4,12 @@ r"""Compute CoNLL scores for coreference clustering as recommended by
 Implementation* (Pradhan et al., 2014)
 
 Usage:
-  scorch <gold-file> <sys-file> [<out-file>]
+  scorch <gold> <sys> [<out-file>]
 
 Arguments:
-  <gold-file>  gold input file (json), `-` for standard input
-  <sys-file>   system input file (json), `-` for standard input
-  <out-file>   output file (text), `-` for standard output [default: -]
+  <gold>      gold input file (json), `-` for standard input
+  <sys>       system input file (json), `-` for standard input
+  <out-file>  output file (text), `-` for standard output [default: -]
 
 Options:
   -h, --help  Show this screen.
@@ -153,10 +153,10 @@ def main_entry_point(argv=None):
     if arguments['<out-file>'] is None:
         arguments['<out-file>'] = '-'
 
-    with smart_open(arguments['<gold-file>']) as in_stream:
+    with smart_open(arguments['<gold>']) as in_stream:
         gold_clusters = clusters_from_json(in_stream)
 
-    with smart_open(arguments['<sys-file>']) as in_stream:
+    with smart_open(arguments['<sys>']) as in_stream:
         sys_clusters = clusters_from_json(in_stream)
 
     with smart_open(arguments['<out-file>'], 'w') as out_stream:
