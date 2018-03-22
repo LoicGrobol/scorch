@@ -34,7 +34,7 @@ def parse_block(lines: ty.Iterable[str], column=-1) -> ty.Dict[str, ty.List[ty.T
     '''
     Parse a bloc (≈sentence) in the CoNLL format, return entities as mappings
     ```
-    entity_id: [(mention_start, mention_end), …]
+    entity_id → [(mention_start, mention_end), …]
     ```
     '''
     # We have to keep track of the order in which the entites are created (i.e.) the begining of
@@ -93,7 +93,7 @@ def parse_document(lines: ty.Iterable[str], column=-1
     '''
     Parse a document in the CoNLL format, return entities as mappings
     ```
-    entity_id: [(block_number, mention_start, mention_end), …]
+    entity_id → [(block_number, mention_start, mention_end), …]
     ```
     '''
     entities = OrderedDict()
@@ -127,7 +127,7 @@ def parse_file(lines: ty.Iterable[str],
     Parse a CoNLL file, return document as tuples `(document_name, entities)` where
     entities are mappings
     ```
-    entity_id: [(block_number, mention_start, mention_end), …]
+    entity_id → [(block_number, mention_start, mention_end), …]
     ```
     '''
     buffer = []
@@ -197,7 +197,8 @@ def main_entry_point(argv=None):
                 {
                     'name': name,
                     'type': 'clusters',
-                    'clusters': entities,
+                    'clusters': {e: [f'{block}.{start}-{end}' for block, start, end in c]
+                                 for e, c in entities.items()},
                 },
                 out_stream)
 
