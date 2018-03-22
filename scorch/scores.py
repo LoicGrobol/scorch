@@ -30,8 +30,8 @@ from scipy.optimize import linear_sum_assignment
 # OPTIMIZE: This could be made faster by dealing separately with singletons
 # OPTIMIZE: This could be made faster (in average) by sorting `cluster_lst` by decreasing length
 def links_from_clusters(clusters: ty.Iterable[ty.Set]
-                        ) -> ty.Tuple[ty.List[ty.Tuple[ty.Hashable, ty.Hashable]],
-                                      ty.List[ty.Tuple[ty.Hashable, ty.Hashable]]]:
+                        ) -> ty.Tuple[ty.Sequence[ty.Tuple[ty.Hashable, ty.Hashable]],
+                                      ty.Sequence[ty.Tuple[ty.Hashable, ty.Hashable]]]:
     r'''
     Return a `(coreference_links, non-coreference_links)` tuple corresponding to a clustering.
     '''
@@ -69,7 +69,8 @@ def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set
         yield set((x,))
 
 
-def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
+def muc(key: ty.Sequence[ty.Set],
+        response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
     Compute the MUC `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is
@@ -99,7 +100,8 @@ def muc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, floa
     return R, P, F
 
 
-def b_cubed(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
+def b_cubed(key: ty.Sequence[ty.Set],
+            response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
     Compute the B³ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is
@@ -117,8 +119,8 @@ def b_cubed(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, 
     return R, P, F
 
 
-def ceaf(key: ty.List[ty.Set],
-         response: ty.List[ty.Set],
+def ceaf(key: ty.Sequence[ty.Set],
+         response: ty.Sequence[ty.Set],
          score: ty.Callable[[ty.Set, ty.Set], float]) -> ty.Tuple[float, float, float]:
     r'''
     Compute the CEAF `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering
@@ -140,7 +142,8 @@ def ceaf(key: ty.List[ty.Set],
     return R, P, F
 
 
-def ceaf_m(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
+def ceaf_m(key: ty.Sequence[ty.Set],
+           response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
     Compute the CEAF_m `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is the CEAF score for the `$Φ_3$` score function
@@ -153,7 +156,8 @@ def ceaf_m(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, f
     return ceaf(key, response, Φ_3)
 
 
-def ceaf_e(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
+def ceaf_e(key: ty.Sequence[ty.Set],
+           response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
     Compute the CEAF_m `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
     clustering`, that is the CEAF score for the `$Φ₄$` score function (aka the Sørensen–Dice
@@ -170,7 +174,8 @@ def ceaf_e(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, f
 
 
 # COMBAK: Check the numeric stability
-def blanc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, float, float]:
+def blanc(key: ty.Sequence[ty.Set],
+          response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
     Return the BLANC `$(R, P, F)$` scores for a `#response` clustering given a `#key` clustering.
 
@@ -213,7 +218,7 @@ def blanc(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> ty.Tuple[float, fl
     return (R_c+R_n)/2, (P_c+P_n)/2, half_F_c+half_F_n
 
 
-def conll2012(key: ty.List[ty.Set], response: ty.List[ty.Set]) -> float:
+def conll2012(key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]) -> float:
     r'''
     Return the CoNLL-2012 scores for a `#response` clustering given a `#key` clustering, that is,
     the average of the MUC, B³ and CEAF_e scores.
