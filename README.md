@@ -29,13 +29,14 @@ Of course the system and gold files should use the same set of mention identifie
 If the inputs to directories, files with the same base name (excluding extension) as those present
 in the gold directory are expected to be present in the sys directory, with exactly one sys file for
 each gold file.
-In that case, the output scores will be the means of the individual files scores,
+In that case, the output scores will be the arithmetic means of the individual files scores,
 ponderated by the relative numbers of
 
   - Gold mentions/links for Recall
   - System mentions/links for Precision
+  - The sum of the previous two for F₁
 
-The global F₁-scores are then the usual harmonic means of these.
+The CoNLL average score is the arithmetic mean of the MUC, B³ and CEAFₑ F₁ scores
 
 
 ## Sources
