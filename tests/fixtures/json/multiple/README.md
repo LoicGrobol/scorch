@@ -1,4 +1,7 @@
 Multiple document fixtures
 ==========================
 
-The system testcases are the reference A2, B1 and C1.
+ATTENTION : <out.txt> has not been checked for exactitude yet, only for consistency between commits.
+
+  - The gold documents are the reference testcases A, B and C keys
+  - The system documents are the reference testcases A2, B1 and C1 responses
