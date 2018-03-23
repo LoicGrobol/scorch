@@ -30,14 +30,16 @@ If the inputs to directories, files with the same base name (excluding extension
 in the gold directory are expected to be present in the sys directory, with exactly one sys file for
 each gold file.
 In that case, the output scores will be the arithmetic means of the individual files scores,
-ponderated by the relative numbers of
+weighted by the relative numbers of
 
-  - Gold mentions/links for Recall
-  - System mentions/links for Precision
+  - Gold mentions for Recall
+  - System mentions for Precision
   - The sum of the previous two for F₁
 
-The CoNLL average score is the arithmetic mean of the MUC, B³ and CEAFₑ F₁ scores
+Note that for BLANC, this is different from the reference interpretation, which weights the
+coreference and non-coreference scores separately.
 
+The CoNLL average score is the arithmetic mean of the global MUC, B³ and CEAFₑ F₁ scores.
 
 ## Sources
   - <a id="pradhan2014scoring" />**Scoring Coreference Partitions of Predicted Mentions: A Reference Implementation.** Sameer Pradhan, Xiaoqiang Luo, Marta Recasens, Eduard Hovy, Vincent Ng and Michael Strube. *Proceedings of the 52nd Annual Meeting of the Association for Computational Linguistics*, Baltimore, MD, June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2006.pdf))
