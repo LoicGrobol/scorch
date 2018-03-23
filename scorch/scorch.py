@@ -30,6 +30,8 @@ import sys
 
 import typing as ty
 
+from statistics import mean
+
 import numpy as np
 
 from docopt import docopt
@@ -48,13 +50,13 @@ except ImportError:
 # Deal with piping output in a standard-compliant way
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
-METRICS = [
-    ('MUC', scores.muc),
-    ('B³', scores.b_cubed),
-    ('CEAF_m', scores.ceaf_m),
-    ('CEAF_e', scores.ceaf_e),
-    ('BLANC', scores.blanc)
-]
+METRICS = {
+    'MUC': scores.muc,
+    'B³': scores.b_cubed,
+    'CEAF_m': scores.ceaf_m,
+    'CEAF_e': scores.ceaf_e,
+    'BLANC': scores.blanc,
+}
 
 
 # Thanks http://stackoverflow.com/a/17603000/760767
@@ -138,7 +140,7 @@ def clusters_from_json(fp) -> ty.List[ty.Set]:
 def process_files(gold_fp, sys_fp) -> ty.Iterable[str]:
     gold_clusters = clusters_from_json(gold_fp)
     sys_clusters = clusters_from_json(sys_fp)
-    for name, metric in METRICS:
+    for name, metric in METRICS.items():
         R, P, F = metric(gold_clusters, sys_clusters)
         yield f'{name}:\tR={R}\tP={P}\tF₁={F}\n'
     conll_score = scores.conll2012(gold_clusters, sys_clusters)
@@ -161,7 +163,7 @@ def process_dirs(gold_dir, sys_dir) -> ty.Iterable[str]:
         with gold_file.open() as gold_stream, sys_file.open() as sys_stream:
             gold_clusters = clusters_from_json(gold_stream)
             sys_clusters = clusters_from_json(sys_stream)
-        r = {name: metric(gold_clusters, sys_clusters) for name, metric in METRICS}
+        r = {name: metric(gold_clusters, sys_clusters) for name, metric in METRICS.items()}
         individual_results.append((name, r, len(gold_clusters), len(sys_clusters)))
 
     gold_sizes = np.fromiter((gc_len for *_, gc_len, _ in individual_results), dtype=int)
@@ -176,7 +178,7 @@ def process_dirs(gold_dir, sys_dir) -> ty.Iterable[str]:
         F = np.average(all_P, weights=gold_sizes+sys_sizes)
         results[name] = (R, P, F)
         yield f'{name}:\tR={R}\tP={P}\tF₁={F}\n'
-    conll_score = math.mean(results[s][2] for s in ('MUC', 'B³', 'CEAF_e'))
+    conll_score = mean(results[s][2] for s in ('MUC', 'B³', 'CEAF_e'))
     yield f'CoNLL-2012 average score: {conll_score}\n'
 
 
