@@ -160,7 +160,7 @@ def ceaf_e(key: ty.Sequence[ty.Set],
            response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
     r'''
     Compute the CEAFₑ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
-    clustering`, that is the CEAF score for the `$Φ₄$` score function (aka the Sørensen–Dice
+    clustering, that is the CEAF score for the `$Φ₄$` score function (aka the Sørensen–Dice
     coefficient).
     ```math
     Φ₄: (k, r) ⟼ \frac{2×\#k∩r}{\#k+\#r}
