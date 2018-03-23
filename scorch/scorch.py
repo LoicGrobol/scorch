@@ -14,7 +14,6 @@ Implementation* (Pradhan et al., 2014)
 ## Options:
   -h, --help       Show this screen.
 
-
 ## Example:
   `scorch gold.json sys.json out.txt`
   `scorch gold/ sys/ out.txt`
@@ -24,25 +23,25 @@ __version__ = 'scorch 0.0.0'
 
 import contextlib
 import json
+import math
 import pathlib
 import signal
 import sys
 
 import typing as ty
 
+import numpy as np
+
 from docopt import docopt
 
-
-# Usual frobbing of packages, due to Python's insane importing policy
-if __name__ == "__main__" and __package__ is None:
-    package_root = pathlib.Path(__file__).resolve().parents[1]
-    sys.path.insert(0, str(package_root))
-    import scorch  # noqa
-    __package__ = "scorch"
 
 try:
     from . import scores
 except ImportError:
+    # Usual frobbing of packages, due to Python's insane importing policy
+    if __name__ == "__main__" and __package__ is None:
+        package_root = pathlib.Path(__file__).resolve().parents[1]
+        sys.path.insert(0, str(package_root))
     from scorch import scores
 
 
@@ -132,7 +131,7 @@ def clusters_from_json(fp) -> ty.List[ty.Set]:
     if obj["type"] == "graph":
         return clusters_from_graph(obj['mentions'], obj['links'])
     elif obj["type"] == "clusters":
-        return [set(c) for c in obj["clusters"]]
+        return [set(c) for n, c in obj["clusters"].items()]
     raise ValueError('Unsupported input format')
 
 
@@ -140,14 +139,45 @@ def process_files(gold_fp, sys_fp) -> ty.Iterable[str]:
     gold_clusters = clusters_from_json(gold_fp)
     sys_clusters = clusters_from_json(sys_fp)
     for name, metric in METRICS:
-        P, R, F = metric(gold_clusters, sys_clusters)
-        yield f'{name}:\tP={P}\tR={R}\tF₁={F}\n'
+        R, P, F = metric(gold_clusters, sys_clusters)
+        yield f'{name}:\tR={R}\tP={P}\tF₁={F}\n'
     conll_score = scores.conll2012(gold_clusters, sys_clusters)
     yield f'CoNLL-2012 average score: {conll_score}\n'
 
 
 def process_dirs(gold_dir, sys_dir) -> ty.Iterable[str]:
+    gold_path = pathlib.Path(gold_dir)
+    sys_path = pathlib.Path(sys_dir)
+    pairs = dict()  # ty.Dict[str, ty.Tuple[pathlib.Path, pathlib.Path]]
+    for gold_file in gold_path.iterdir():
+        try:
+            sys_file = next(sys_path.glob(f'{gold_file.stem}*'))
+        except StopIteration:
+            raise ValueError(f'No matching sys file for {gold_file}')
+        pairs[gold_file.stem] = (gold_file, sys_file)
 
+    individual_results = []  # ty.List[str, ty.Dict[str, ty.Tuple[float, float, float]] int, int]
+    for name, (gold_file, sys_file) in pairs.items():
+        with gold_file.open() as gold_stream, sys_file.open() as sys_stream:
+            gold_clusters = clusters_from_json(gold_stream)
+            sys_clusters = clusters_from_json(sys_stream)
+        r = {name: metric(gold_clusters, sys_clusters) for name, metric in METRICS}
+        individual_results.append((name, r, len(gold_clusters), len(sys_clusters)))
+
+    gold_sizes = np.fromiter((gc_len for *_, gc_len, _ in individual_results), dtype=int)
+    sys_sizes = np.fromiter((sc_len for *_, _, sc_len in individual_results), dtype=int)
+
+    results = {}
+    for name in METRICS:
+        all_R, all_P, all_F = (np.fromiter(s, float)
+                               for s in zip(*(r[name] for _, r, *_ in individual_results)))
+        R = np.average(all_R, weights=gold_sizes)
+        P = np.average(all_P, weights=sys_sizes)
+        F = np.average(all_P, weights=gold_sizes+sys_sizes)
+        results[name] = (R, P, F)
+        yield f'{name}:\tR={R}\tP={P}\tF₁={F}\n'
+    conll_score = math.mean(results[s][2] for s in ('MUC', 'B³', 'CEAF_e'))
+    yield f'CoNLL-2012 average score: {conll_score}\n'
 
 
 def main_entry_point(argv=None):
@@ -156,6 +186,14 @@ def main_entry_point(argv=None):
     # docopt yet. Might be useful for complex default values, too
     if arguments['<out-file>'] is None:
         arguments['<out-file>'] = '-'
+
+    if arguments['<gold>'] != '-' and arguments['<sys>'] != '-':
+        gold_path = pathlib.Path(arguments['<gold>'])
+        sys_path = pathlib.Path(arguments['<sys>'])
+        if gold_path.is_dir() and sys_path.is_dir():
+            with smart_open(arguments['<out-file>'], 'w') as out_stream:
+                out_stream.writelines(process_dirs(gold_path, sys_path))
+            return None
 
     with contextlib.ExitStack() as stack:
         gold_stream = stack.enter_context(smart_open(arguments['<gold>']))
