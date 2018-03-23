@@ -15,13 +15,13 @@ The implementations of the various scores are as close as possible from the form
 
 ## Formats
 ### Single document
-The input files should be JSON files with a "type" key at top-level
-  - If "type" if "graph", then top-level should have at top-level
-    - A "mentions" key containing a list of all mention identifiers
-    - A "links" key containing a list of pairs of corefering mention
-      identifiers
-  - If "type" is "clusters", then top-level should have a "clusters" key containing a mapping from
-    clusters ids to cluster contents (as lists of mention identifiers).
+The input files should be JSON files with a `"type"` key at top-level
+
+  - If `"type"` is `"graph"`, then top-level should have at top-level
+     - A `"mentions"` key containing a list of all mention identifiers
+     - A `"links"` key containing a list of pairs of corefering mention identifiers
+  - If `"type"` is `"clusters"`, then top-level should have a `"clusters"` key containing a mapping
+    from clusters ids to cluster contents (as lists of mention identifiers).
 
 Of course the system and gold files should use the same set of mention identifiers…
 
@@ -36,8 +36,10 @@ weighted by the relative numbers of
   - System mentions for Precision
   - The sum of the previous two for F₁
 
-Note that for BLANC, this is different from the reference interpretation, which weights the
-coreference and non-coreference scores separately.
+This is different from the reference interpretation where
+
+  - **MUC** weighting ignores mentions in singleton entities
+  - **BLANC** weighting is done separately for coreference and non-coreference scores
 
 The CoNLL average score is the arithmetic mean of the global MUC, B³ and CEAFₑ F₁ scores.
 
