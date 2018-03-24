@@ -164,10 +164,14 @@ def process_dirs(gold_dir, sys_dir) -> ty.Iterable[str]:
             gold_clusters = clusters_from_json(gold_stream)
             sys_clusters = clusters_from_json(sys_stream)
         r = {name: metric(gold_clusters, sys_clusters) for name, metric in METRICS.items()}
-        individual_results.append((name, r, len(gold_clusters), len(sys_clusters)))
+        individual_results.append(
+            (name, r,
+             sum(map(len, gold_clusters)),
+             sum(map(len, sys_clusters))),
+        )
 
-    gold_sizes = np.fromiter((gc_len for *_, gc_len, _ in individual_results), dtype=int)
-    sys_sizes = np.fromiter((sc_len for *_, _, sc_len in individual_results), dtype=int)
+    gold_sizes = np.fromiter((g_size for *_, g_size, _ in individual_results), dtype=int)
+    sys_sizes = np.fromiter((s_size for *_, _, s_size in individual_results), dtype=int)
 
     results = {}
     for name in METRICS:
