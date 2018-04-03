@@ -1,10 +1,17 @@
 language: python
 python:
-  - "3.6"
-  - "3.6-dev"  # 3.6 development branch
-
+    - '3.6'
+    - 3.6-dev
 install:
-  - python3 -m pip install .
-
+    - python3 -m pip install .
 script:
-  - pytest # or py.test for Python versions 3.5 and below
+    - python3 -m pip install -U --user pip setuptools wheel
+    - pytest
+deploy:
+    provider: pypi
+    user: "loicgrobol"
+    password:
+        secure: vtoIG8gtXa1SOO42/OY2h6aEcS/VCMr4tVR9BFeQvjd55vgRn9zeW/j7SlW83RnW+m+V2KOeIt7rCh3Hhx3DDPwvzCSCvZr6BbVvdTt8RWezdjXfzJB1RKwGEPjUOwXty3Z7Owu8k584m9it4YMQRe098wuNp2uW/iD3mHEMW6llJqq6T3u5YOpsizr381DtaTaNCeCPQGJyH5JUEJiUDnJFQZ37LkebReXAlFRfs98qtLjilOSFnkoahIt8jFDhxp6Mow7/A42rh72O1rQqTEDBzlpJb5OFfBet26gD8pqjXid0Xbs9enXbqc5UMU/azA41GQbdCA/6Jp63hXziGx34I2IRhlFycd/TQNvzwuJBymPnAPn5fGARSUmjSgft8R5qnIxYmM1WhliMOaRSRxzYNSDozZbom80bVV8j5UrgrSVDxaXxhZ9MTvSP2GmZBPzOA+DZ4Oiue0EotLLLO8HdUALlAaNJP9r/VKqksTiQ4W7LNf4NmwWE7/bKD3JmPuXGQUEhb+Ma8Fwa/YVtgzhxFiX1hc+2JFx9RaYCtP/RKl62D8v/8ZEJ25iOyoNOLJZI+sMwKpcT/nLNMri7969a9TdU8jCrF/Lv+riTJz4zafNEWV0/sYsuy0O+zSSPzYl4KISF+AA779QMwi5AJXn/nkE+35D6wb8maKiEG7U=
+    on:
+        tags: true
+     distributions: "sdist bdist_wheel"

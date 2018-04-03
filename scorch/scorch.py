@@ -19,7 +19,7 @@ Implementation* (Pradhan et al., 2014)
   `scorch gold/ sys/ out.txt`
 """
 
-__version__ = '0.0.10'
+__version__ = '0.0.11'
 
 import contextlib
 import json
