@@ -19,8 +19,6 @@ Implementation* (Pradhan et al., 2014)
   `scorch gold/ sys/ out.txt`
 """
 
-__version__ = '0.0.11'
-
 import contextlib
 import json
 import pathlib
@@ -38,12 +36,14 @@ from docopt import docopt
 
 try:
     from . import scores
+    from . import __version__
 except ImportError:
     # Usual frobbing of packages, due to Python's insane importing policy
     if __name__ == "__main__" and __package__ is None:
         package_root = pathlib.Path(__file__).resolve().parents[1]
         sys.path.insert(0, str(package_root))
     from scorch import scores
+    from scorch import __version__
 
 
 # Deal with piping output in a standard-compliant way
