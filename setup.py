@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='scorch',
-    version='0.0.2',
+    version='0.0.3',
     description='Alternative scorer for the CoNLL-2011/2012 shared tasks on coreference resolution.',
     url='https://github.com/LoicGrobol/scorch',
     author='Loïc Grobol',
