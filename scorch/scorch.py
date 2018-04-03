@@ -23,7 +23,6 @@ __version__ = 'scorch 0.0.0'
 
 import contextlib
 import json
-import math
 import pathlib
 import signal
 import sys

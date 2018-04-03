@@ -9,9 +9,30 @@ It aims to be more straightforward than the [reference implementation][ref-score
 The implementations of the various scores are as close as possible from the formulas used by <a href="#pradhan2014scoring">Pradhan et al. (2014)</a>, with the edge cases for BLANC taken from <a href="recasens2011BLANC">Recasens and Hovy (2011)</a>.
 
 ---
-<sub><a id="footnote-0-1" href="#footnote-0-1-backref">1.</a> **S**corer for **co**reference **ch**ains.</sub>
+<sub><a id="footnote-0-1" href="#footnote-0-1-backref">1.</a> **S**corer for **cor**eference **ch**ains.</sub>
 
 [ref-scorer]: https://github.com/conll/reference-coreference-scorers
+
+## Use
+Download from master with
+```bash
+git clone https://github.com/LoicGrobol/scorch.git
+```
+
+Install with
+```bash
+python3 -m pip install .
+```
+
+Then just use `scorch`, e.g.
+```bash
+scorch gold.json sys.json out.txt
+```
+
+Alternatively, just running `scorch.py` without installing should work as long as you have all the dependencies installed
+```
+python3 scorch.py -h
+```
 
 ## Formats
 ### Single document
@@ -29,8 +50,8 @@ Of course the system and gold files should use the same set of mention identifie
 If the inputs to directories, files with the same base name (excluding extension) as those present
 in the gold directory are expected to be present in the sys directory, with exactly one sys file for
 each gold file.
-In that case, the output scores will be the arithmetic means of the individual files scores,
-weighted by the relative numbers of
+In that case, the output scores will be the micro-average of the individual files scores, ie their
+arithmetic means weighted by the relative numbers of
 
   - Gold mentions for Recall
   - System mentions for Precision
@@ -39,7 +60,11 @@ weighted by the relative numbers of
 This is different from the reference interpretation where
 
   - **MUC** weighting ignores mentions in singleton entities
-  - **BLANC** weighting is done separately for coreference and non-coreference scores
+    - This should not make any difference for the CoNLL-2012 dataset, since singleton entities are not annotated.
+    - For datasets with singletons, the shortcomings of MUC are well known, so this score
+     shouldn't matter much
+  - **BLANC** is calculated by micro-averaging coreference and non-coreference separately, using
+    the number of links as weights instead of the number of mentions.
 
 The CoNLL average score is the arithmetic mean of the global MUC, B³ and CEAFₑ F₁ scores.
 
