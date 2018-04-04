@@ -13,7 +13,18 @@ The implementations of the various scores are as close as possible from the form
 
 [ref-scorer]: https://github.com/conll/reference-coreference-scorers
 
-## Use
+## Usage
+```bash
+scorch gold.json sys.json out.txt
+```
+
+## Install
+### With pip
+```
+python3 -m pip install scorch
+```
+
+### From git
 Download from master with
 ```bash
 git clone https://github.com/LoicGrobol/scorch.git
@@ -22,11 +33,6 @@ git clone https://github.com/LoicGrobol/scorch.git
 Install with
 ```bash
 python3 -m pip install .
-```
-
-Then just use `scorch`, e.g.
-```bash
-scorch gold.json sys.json out.txt
 ```
 
 Alternatively, just running `scorch.py` without installing should work as long as you have all the dependencies installed
