@@ -121,6 +121,8 @@ def clusters_from_graph(nodes: ty.Iterable[ty.Hashable],
                         edges: ty.Iterable[ty.Tuple[ty.Hashable, ty.Hashable]]) -> ty.List[ty.Set]:
     '''Return the connex components of a graph.'''
     clusters = greedy_clustering(edges)
+    if not clusters:
+        return [{n} for n in nodes]
     non_sing = set.union(*clusters)
     singletons = [{n} for n in nodes if n not in non_sing]
     clusters.extend(singletons)
