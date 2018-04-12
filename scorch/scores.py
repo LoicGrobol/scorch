@@ -127,7 +127,7 @@ def ceaf(key: ty.Sequence[ty.Set],
     using the `#score` alignment score function, that is
     ```math
     R &= \frac{∑_{k∈K}C(k, A(k))}{∑_{k∈K}\#k}\\
-    P &=  \frac{∑_{r∈R}C(r, A⁻¹(r))}{∑_{r∈R}\#r}\\
+    P &= \frac{∑_{r∈R}C(r, A⁻¹(r))}{∑_{r∈R}\#r}\\
     F &= 2*\frac{PR}{P+R}
     ```
     Where `$C$` is `#score` and `$A$` is the one-to-one mapping from key clusters to response
