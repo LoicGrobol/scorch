@@ -130,7 +130,7 @@ def ceaf(key: ty.Sequence[ty.Set],
     P &= \frac{∑_{r∈R}C(r, A⁻¹(r))}{∑_{r∈R}\#r}\\
     F &= 2*\frac{PR}{P+R}
     ```
-    Where `$C$` is `#score` and `$A$` is the one-to-one mapping from key clusters to response
+    Where `$C$` is `#score` and `$A$` is a one-to-one mapping from key clusters to response
     clusters that maximizes `$∑_{k∈K}C(k, A(k))$`.
     '''
     cost_matrix = np.array([[-score(k, r) for r in response] for k in key])
@@ -179,11 +179,14 @@ def blanc(key: ty.Sequence[ty.Set],
     r'''
     Return the BLANC `$(R, P, F)$` scores for a `#response` clustering given a `#key` clustering.
 
-    Note: To ensure the compliance with the reference implementation, the edge cases results are
-    those from Recasens and Hovy (2011) rather than from the more recent Luo et al. (2014) when
-    those two disagree. This has an effect for the N-6 testcase, where according to Luo et al.
-    (2014), BLANC should be `$\frac{0+F_n}{2}$` since `$C_k=∅$` and `$C_r≠∅$`, but according to
-    Recasens and Hovy (2011), BLANC should be `$F_n$`.
+    ## Notes
+
+      - Mention identifiers have to be comparable
+      - To ensure the compliance with the reference implementation, the edge cases results are
+        those from Recasens and Hovy (2011) rather than from the more recent Luo et al. (2014) when
+        those two disagree. This has an effect for the N-6 testcase, where according to Luo et al.
+        (2014), BLANC should be `$\frac{0+F_n}{2}$` since `$C_k=∅$` and `$C_r≠∅$`, but according to
+        Recasens and Hovy (2011), BLANC should be `$F_n$`.
     '''
     # Edge case : a single mention in both `key` and `response` clusters
     # in that case, `C_k`, `C_r`, `N_k` and `N_r` are all empty, so we need a separate examination

@@ -54,7 +54,7 @@ The input files should be JSON files with a `"type"` key at top-level
 Of course the system and gold files should use the same set of mention identifiers…
 
 ### Multiple documents
-If the inputs to directories, files with the same base name (excluding extension) as those present
+If the inputs are directories, files with the same base name (excluding extension) as those present
 in the gold directory are expected to be present in the sys directory, with exactly one sys file for
 each gold file.
 In that case, the output scores will be the micro-average of the individual files scores, ie their
@@ -72,6 +72,10 @@ This is different from the reference interpretation where
      shouldn't matter much
   - **BLANC** is calculated by micro-averaging coreference and non-coreference separately, using
     the number of links as weights instead of the number of mentions.
+    - This is roughly equivalent to weighting coreference scores per document by their number of
+      non-singleton clusters and non-coreference scores by the square of their number of mentions.
+      This give disproportionate importance to large documents, which is not desirable
+      in heterogenous corpora
 
 The CoNLL average score is the arithmetic mean of the global MUC, B³ and CEAFₑ F₁ scores.
 
