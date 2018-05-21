@@ -180,7 +180,7 @@ def process_dirs(gold_dir, sys_dir) -> ty.Iterable[str]:
                                for s in zip(*(r[name] for _, r, *_ in individual_results)))
         R = np.average(all_R, weights=gold_sizes)
         P = np.average(all_P, weights=sys_sizes)
-        F = np.average(all_P, weights=gold_sizes+sys_sizes)
+        F = np.average(all_F, weights=gold_sizes+sys_sizes)
         results[name] = (R, P, F)
         yield f'{name}:\tR={R}\tP={P}\tF₁={F}\n'
     conll_score = mean(results[s][2] for s in ('MUC', 'B³', 'CEAF_e'))
