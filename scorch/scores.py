@@ -29,9 +29,12 @@ from scipy.optimize import linear_sum_assignment
 
 # OPTIMIZE: This could be made faster by dealing separately with singletons
 # OPTIMIZE: This could be made faster (in average) by sorting `cluster_lst` by decreasing length
-def links_from_clusters(clusters: ty.Iterable[ty.Set]
-                        ) -> ty.Tuple[ty.Sequence[ty.Tuple[ty.Hashable, ty.Hashable]],
-                                      ty.Sequence[ty.Tuple[ty.Hashable, ty.Hashable]]]:
+def links_from_clusters(
+    clusters: ty.Iterable[ty.Set],
+) -> ty.Tuple[
+    ty.Sequence[ty.Tuple[ty.Hashable, ty.Hashable]],
+    ty.Sequence[ty.Tuple[ty.Hashable, ty.Hashable]]
+]:
     r'''
     Return a `(coreference_links, non-coreference_links)` tuple corresponding to a clustering.
     '''
@@ -69,8 +72,10 @@ def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set
         yield set((x,))
 
 
-def muc(key: ty.Sequence[ty.Set],
-        response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
+def muc(
+    key: ty.Sequence[ty.Set],
+    response: ty.Sequence[ty.Set],
+) -> ty.Tuple[float, float, float]:
     r'''
     Compute the MUC `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is
@@ -100,8 +105,10 @@ def muc(key: ty.Sequence[ty.Set],
     return R, P, F
 
 
-def b_cubed(key: ty.Sequence[ty.Set],
-            response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
+def b_cubed(
+    key: ty.Sequence[ty.Set],
+    response: ty.Sequence[ty.Set],
+) -> ty.Tuple[float, float, float]:
     r'''
     Compute the B³ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is
@@ -111,17 +118,23 @@ def b_cubed(key: ty.Sequence[ty.Set],
     F &= 2*\frac{PR}{P+R}
     ```
     '''
-    R = (math.fsum(len(k.intersection(r))**2/len(k) for k in key for r in response) /
-         sum(len(k) for k in key))
-    P = (math.fsum(len(r.intersection(k))**2/len(r) for r in response for k in key) /
-         sum(len(r) for r in response))
+    R = (
+        math.fsum(len(k.intersection(r))**2/len(k) for k in key for r in response)
+        / sum(len(k) for k in key)
+    )
+    P = (
+        math.fsum(len(r.intersection(k))**2/len(r) for r in response for k in key)
+        / sum(len(r) for r in response)
+    )
     F = harmonic_mean((R, P))
     return R, P, F
 
 
-def ceaf(key: ty.Sequence[ty.Set],
-         response: ty.Sequence[ty.Set],
-         score: ty.Callable[[ty.Set, ty.Set], float]) -> ty.Tuple[float, float, float]:
+def ceaf(
+    key: ty.Sequence[ty.Set],
+    response: ty.Sequence[ty.Set],
+    score: ty.Callable[[ty.Set, ty.Set], float],
+) -> ty.Tuple[float, float, float]:
     r'''
     Compute the CEAF `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering
     using the `#score` alignment score function, that is
@@ -142,8 +155,10 @@ def ceaf(key: ty.Sequence[ty.Set],
     return R, P, F
 
 
-def ceaf_m(key: ty.Sequence[ty.Set],
-           response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
+def ceaf_m(
+    key: ty.Sequence[ty.Set],
+    response: ty.Sequence[ty.Set],
+) -> ty.Tuple[float, float, float]:
     r'''
     Compute the CEAFₘ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is the CEAF score for the `$Φ_3$` score function
@@ -156,8 +171,10 @@ def ceaf_m(key: ty.Sequence[ty.Set],
     return ceaf(key, response, Φ_3)
 
 
-def ceaf_e(key: ty.Sequence[ty.Set],
-           response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
+def ceaf_e(
+    key: ty.Sequence[ty.Set],
+    response: ty.Sequence[ty.Set],
+) -> ty.Tuple[float, float, float]:
     r'''
     Compute the CEAFₑ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
     clustering, that is the CEAF score for the `$Φ₄$` score function (aka the Sørensen–Dice
@@ -174,8 +191,10 @@ def ceaf_e(key: ty.Sequence[ty.Set],
 
 
 # COMBAK: Check the numeric stability
-def blanc(key: ty.Sequence[ty.Set],
-          response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
+def blanc(
+    key: ty.Sequence[ty.Set],
+    response: ty.Sequence[ty.Set],
+) -> ty.Tuple[float, float, float]:
     r'''
     Return the BLANC `$(R, P, F)$` scores for a `#response` clustering given a `#key` clustering.
 

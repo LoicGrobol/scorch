@@ -87,7 +87,7 @@ def greedy_clustering(links: ty.Iterable[ty.Tuple[ty.Hashable, ty.Hashable]]) ->
     r'''
     Get connected component clusters from a set of edges.
 
-    This is basically done with depth 1 [disjoint-sets][1], which seemed a good tradeoff between
+    This is basically done with depth 1 [disjoint-sets][1], which seemed a good trade-off between
     performance and readability. If performance is an issue, consider using e.g. the [incremental
     connected component algorithm][2] found in Boost Graph.
 
@@ -117,8 +117,10 @@ def greedy_clustering(links: ty.Iterable[ty.Tuple[ty.Hashable, ty.Hashable]]) ->
     return [set(c) for c in clusters.values()]
 
 
-def clusters_from_graph(nodes: ty.Iterable[ty.Hashable],
-                        edges: ty.Iterable[ty.Tuple[ty.Hashable, ty.Hashable]]) -> ty.List[ty.Set]:
+def clusters_from_graph(
+    nodes: ty.Iterable[ty.Hashable],
+    edges: ty.Iterable[ty.Tuple[ty.Hashable, ty.Hashable]]
+) -> ty.List[ty.Set]:
     '''Return the connex components of a graph.'''
     clusters = greedy_clustering(edges)
     if not clusters:
@@ -166,9 +168,12 @@ def process_dirs(gold_dir, sys_dir) -> ty.Iterable[str]:
             sys_clusters = clusters_from_json(sys_stream)
         r = {name: metric(gold_clusters, sys_clusters) for name, metric in METRICS.items()}
         individual_results.append(
-            (name, r,
-             sum(map(len, gold_clusters)),
-             sum(map(len, sys_clusters))),
+            (
+                name,
+                r,
+                sum(map(len, gold_clusters)),
+                sum(map(len, sys_clusters)),
+            ),
         )
 
     gold_sizes = np.fromiter((g_size for *_, g_size, _ in individual_results), dtype=int)
@@ -176,8 +181,10 @@ def process_dirs(gold_dir, sys_dir) -> ty.Iterable[str]:
 
     results = {}
     for name in METRICS:
-        all_R, all_P, all_F = (np.fromiter(s, float)
-                               for s in zip(*(r[name] for _, r, *_ in individual_results)))
+        all_R, all_P, all_F = (
+            np.fromiter(s, float)
+            for s in zip(*(r[name] for _, r, *_ in individual_results))
+        )
         R = np.average(all_R, weights=gold_sizes)
         P = np.average(all_P, weights=sys_sizes)
         F = np.average(all_F, weights=gold_sizes+sys_sizes)
