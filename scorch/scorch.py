@@ -29,6 +29,8 @@ import typing as ty
 
 from statistics import mean
 
+import tqdm
+
 import numpy as np
 
 from docopt import docopt
@@ -162,7 +164,16 @@ def process_dirs(gold_dir, sys_dir) -> ty.Iterable[str]:
         pairs[gold_file.stem] = (gold_file, sys_file)
 
     individual_results = []  # ty.List[str, ty.Dict[str, ty.Tuple[float, float, float]] int, int]
-    for name, (gold_file, sys_file) in pairs.items():
+    pbar = tqdm.tqdm(
+        pairs.items(),
+        unit='document',
+        desc='Scoring',
+        unit_scale=True,
+        unit_divisor=1024,
+        dynamic_ncols=True,
+        leave=False
+    )
+    for name, (gold_file, sys_file) in pbar:
         with gold_file.open() as gold_stream, sys_file.open() as sys_stream:
             gold_clusters = clusters_from_json(gold_stream)
             sys_clusters = clusters_from_json(sys_stream)
