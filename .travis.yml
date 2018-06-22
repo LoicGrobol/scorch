@@ -1,24 +1,20 @@
 language: python
-
 python:
-    - '3.6'
-    - 3.6-dev
-
+- '3.6'
+- 3.6-dev
 install:
-    - python3 -m pip install .
-
+- python3 -m pip install .
 script:
-    - python3 -m pip install -U pip setuptools wheel
-    - pytest
-
+- python3 -m pip install -U pip setuptools wheel
+- pytest
 deploy:
-    provider: pypi
-    server: https://pypi.org
-    user: "loicgrobol"
-    password:
-        secure: vtoIG8gtXa1SOO42/OY2h6aEcS/VCMr4tVR9BFeQvjd55vgRn9zeW/j7SlW83RnW+m+V2KOeIt7rCh3Hhx3DDPwvzCSCvZr6BbVvdTt8RWezdjXfzJB1RKwGEPjUOwXty3Z7Owu8k584m9it4YMQRe098wuNp2uW/iD3mHEMW6llJqq6T3u5YOpsizr381DtaTaNCeCPQGJyH5JUEJiUDnJFQZ37LkebReXAlFRfs98qtLjilOSFnkoahIt8jFDhxp6Mow7/A42rh72O1rQqTEDBzlpJb5OFfBet26gD8pqjXid0Xbs9enXbqc5UMU/azA41GQbdCA/6Jp63hXziGx34I2IRhlFycd/TQNvzwuJBymPnAPn5fGARSUmjSgft8R5qnIxYmM1WhliMOaRSRxzYNSDozZbom80bVV8j5UrgrSVDxaXxhZ9MTvSP2GmZBPzOA+DZ4Oiue0EotLLLO8HdUALlAaNJP9r/VKqksTiQ4W7LNf4NmwWE7/bKD3JmPuXGQUEhb+Ma8Fwa/YVtgzhxFiX1hc+2JFx9RaYCtP/RKl62D8v/8ZEJ25iOyoNOLJZI+sMwKpcT/nLNMri7969a9TdU8jCrF/Lv+riTJz4zafNEWV0/sYsuy0O+zSSPzYl4KISF+AA779QMwi5AJXn/nkE+35D6wb8maKiEG7U=
-    on:
-        tags: true
-        python: '3.6'
-    distributions: "sdist bdist_wheel"
-    skip_existing: trues
+  provider: pypi
+  server: https://pypi.org
+  user: loicgrobol
+  password:
+    secure: nGJAi1bcw+C7bQ1jhsngM/GKe8lnZKi2/r0oiN6qyh70KmvdSadNHLN+s7QKm39plVOr7yn41IOPApKzieK8RdG7aO8qJlUR2Ii/Np9R8HYmDANCxRqNnG9SmkjAq2eVsWqntFsNW0O5v1vGv8WbUcKrbQOOQs7nX+q0zuT1EdkQ/M35YB7mImOUU+r8eRQSQoGiFUz79D6RIbZkchJ2T9s/z089rmEYoIgxbBwfiIe+rVGHUm89Tle25OdphqOt/tCk3srwKZbxD8bD0Hy8E3lhgKB6iwD6/gSG2orG3RtoQd6ikie5xNgneBWXlEyo0Xe/c5qJPe8OXK5AkVpNtLwXSqfPBz1NNk2KfbsjuMNg7vF7MRGmk93vxfny6xmkFe4R2dEHQ8TEFRBrOqiDHH2KoK2ACx1rNm2kwykSFJ5tpR4Iw19MTfeIbWVu45dCC73r4eTFH+pQXnzukfjLl4PJEHLWvp8RPYAAI8zsODXhVJgNxz92+GthEwjo0MPGDt4x4ZYDd6EtNXcpRwvUM7r0BQ3sY38vvNKZcZdrrjx3XTn8yv2fT88qtzxAmLe3HPfia8ZwU73qQhHNpGdS/2JzDmhpl4R2OdGBGfH5XcLcZ2BVHWEHqWXOc7BHGoF+AiXMtNrSOg6V/hubf/5VC9iyLzbjEoa3ZlDMCXoY4Tw=
+  on:
+    tags: true
+    python: '3.6'
+  distributions: sdist bdist_wheel
+  skip_existing: trues
