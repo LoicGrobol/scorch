@@ -55,10 +55,10 @@ Of course the system and gold files should use the same set of mention identifie
 
 ### Multiple documents
 If the inputs are directories, files with the same base name (excluding extension) as those present
-in the gold directory are expected to be present in the sys directory, with exactly one sys file for
-each gold file.
-In that case, the output scores will be the micro-average of the individual files scores, ie their
-arithmetic means weighted by the relative numbers of
+in the sys directory are expected to be present in the gold directory, with exactly one gold file
+for each sys file.
+In that case, the output scores will be the micro-average of the individual files
+scores, ie their arithmetic means weighted by the relative numbers of
 
   - Gold mentions for Recall
   - System mentions for Precision

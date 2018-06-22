@@ -156,12 +156,12 @@ def process_dirs(gold_dir, sys_dir) -> ty.Iterable[str]:
     gold_path = pathlib.Path(gold_dir)
     sys_path = pathlib.Path(sys_dir)
     pairs = dict()  # ty.Dict[str, ty.Tuple[pathlib.Path, pathlib.Path]]
-    for gold_file in gold_path.iterdir():
+    for sys_file in sys_path.iterdir():
         try:
-            sys_file = next(sys_path.glob(f'{gold_file.stem}*'))
+            gold_file = next(gold_path.glob(f'{sys_file.stem}*'))
         except StopIteration:
-            raise ValueError(f'No matching sys file for {gold_file}')
-        pairs[gold_file.stem] = (gold_file, sys_file)
+            raise ValueError(f'No matching sys file for {sys_file}')
+        pairs[sys_file.stem] = (gold_file, sys_file)
 
     individual_results = []  # ty.List[str, ty.Dict[str, ty.Tuple[float, float, float]] int, int]
     pbar = tqdm.tqdm(
