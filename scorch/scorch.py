@@ -174,6 +174,7 @@ def process_dirs(gold_dir, sys_dir) -> ty.Iterable[str]:
         leave=False
     )
     for name, (gold_file, sys_file) in pbar:
+        pbar.desc = f'Scoring {name}'
         with gold_file.open() as gold_stream, sys_file.open() as sys_stream:
             gold_clusters = clusters_from_json(gold_stream)
             sys_clusters = clusters_from_json(sys_stream)
