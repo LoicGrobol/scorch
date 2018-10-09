@@ -207,11 +207,31 @@ def blanc(
         (2014), BLANC should be `$\frac{0+F_n}{2}$` since `$C_k=∅$` and `$C_r≠∅$`, but according to
         Recasens and Hovy (2011), BLANC should be `$F_n$`.
     '''
+    C_score, N_score = detailed_blanc(key, response)
+    if C_score is None:
+        return N_score
+    if N_score is None:
+        return C_score
+    return np.mean((C_score, N_score), axis=0).tolist()
+
+
+def detailed_blanc(
+    key: ty.Sequence[ty.Set],
+    response: ty.Sequence[ty.Set],
+) -> ty.Tuple[
+    ty.Union[ty.Tuple[float, float, float], None],
+    ty.Union[ty.Tuple[float, float, float], None],
+]:
+    '''Return BLANC `$(R, P, F)$` scores for coreference and non-coreference respectively.'''
+
     # Edge case : a single mention in both `key` and `response` clusters
     # in that case, `C_k`, `C_r`, `N_k` and `N_r` are all empty, so we need a separate examination
     # of the mentions to know if we are very good or very bad.
     if len(key) == len(response) == 1 and len(key[0]) == len(response[0]) == 1:
-        return (1., 1., 1.) if key[0] == response[0] else (0., 0., 0.)
+        if key[0] == response[0]:
+            return ((1., 1., 1.), (1., 1., 1.))
+        else:
+            return ((0., 0., 0.), (0., 0., 0.))
 
     C_k, N_k = map(set, links_from_clusters(key))
     C_r, N_r = map(set, links_from_clusters(response))
@@ -220,24 +240,24 @@ def blanc(
     TP_n = N_k.intersection(N_r)
 
     if not C_k or not C_r:
-        R_c, P_c, half_F_c = (1., 1., 0.5) if C_k == C_r else (0., 0., 0.)
+        R_c, P_c, F_c = (1., 1., 1.) if C_k == C_r else (0., 0., 0.)
     else:
         R_c, P_c = len(TP_c)/len(C_k), len(TP_c)/len(C_r)
-        half_F_c = len(TP_c)/(len(C_k)+len(C_r))
+        F_c = 2*len(TP_c)/(len(C_k)+len(C_r))
 
     if not N_k or not N_r:
-        R_n, P_n, half_F_n = (1., 1., 0.5) if N_k == N_r else (0., 0., 0.)
+        R_n, P_n, F_n = (1., 1., 1.) if N_k == N_r else (0., 0., 0.)
     else:
         R_n, P_n = len(TP_n)/len(N_k), len(TP_n)/len(N_r)
-        half_F_n = len(TP_n)/(len(N_k)+len(N_r))
+        F_n = 2*len(TP_n)/(len(N_k)+len(N_r))
 
     # Edge cases
     if not C_k:
-        return R_n, P_n, 2*half_F_n
+        return (None, (R_n, P_n, F_n))
     if not N_k:
-        return R_c, P_c, 2*half_F_c
+        return ((R_c, P_c, F_c), None)
 
-    return (R_c+R_n)/2, (P_c+P_n)/2, half_F_c+half_F_n
+    return ((R_c, P_c, F_c), (R_n, P_n, F_n))
 
 
 def conll2012(key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]) -> float:
