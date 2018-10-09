@@ -88,10 +88,10 @@ def muc(
 
     In the edge case where all clusters in either `#key` or `#response` are singletons, `$P$`, `$R$`
     and `$F$` are defined to be `$0$`, following the reference implementation (since singleton
-    clusters where not considered in Vilain et al. (1995)).
+    clusters where not considered in Vilain et al. (1995).
 
     Note: This implementation is significantly different from the reference one (despite
-    implementing the formulae from Pradahan et al. (2014)) in that the reference use the ordering of
+    implementing the formulae from Pradahan et al. (2014) in that the reference use the ordering of
     mentions in documents to consistently assign a non-problematic spanning tree (viz. a chain) to
     each cluster, thus avoiding the issues that led Vilain et al. (1995) to define MUC by the
     formulae above.
@@ -220,13 +220,13 @@ def blanc(
     TP_n = N_k.intersection(N_r)
 
     if not C_k or not C_r:
-        R_c, P_c, half_F_c = (1., 1., 1.) if C_k == C_r else (0., 0., 0.)
+        R_c, P_c, half_F_c = (1., 1., 0.5) if C_k == C_r else (0., 0., 0.)
     else:
         R_c, P_c = len(TP_c)/len(C_k), len(TP_c)/len(C_r)
         half_F_c = len(TP_c)/(len(C_k)+len(C_r))
 
     if not N_k or not N_r:
-        R_n, P_n, half_F_n = (1., 1., 1.) if N_k == N_r else (0., 0., 0.)
+        R_n, P_n, half_F_n = (1., 1., 0.5) if N_k == N_r else (0., 0., 0.)
     else:
         R_n, P_n = len(TP_n)/len(N_k), len(TP_n)/len(N_r)
         half_F_n = len(TP_n)/(len(N_k)+len(N_r))
