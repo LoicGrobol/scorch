@@ -30,7 +30,10 @@ from collections import defaultdict, OrderedDict
 from docopt import docopt
 
 
-def parse_block(lines: ty.Iterable[str], column=-1) -> ty.Dict[str, ty.List[ty.Tuple[str, str]]]:
+def parse_block(
+    lines: ty.Iterable[str],
+    column: int = -1
+) -> ty.Dict[str, ty.List[ty.Tuple[str, str]]]:
     '''
     Parse a bloc (≈sentence) in the CoNLL format, return entities as mappings
     ```
@@ -88,8 +91,9 @@ def split_blocks(lines: ty.Iterable[str]) -> ty.Iterable[ty.List[str]]:
         yield buffer
 
 
-def parse_document(lines: ty.Iterable[str], column=-1
-                   ) -> ty.Dict[str, ty.List[ty.Tuple[int, str, str]]]:
+def parse_document(
+    lines: ty.Iterable[str], column=-1
+) -> ty.Dict[str, ty.List[ty.Tuple[int, str, str]]]:
     '''
     Parse a document in the CoNLL format, return entities as mappings
     ```
@@ -120,9 +124,10 @@ def parse_document(lines: ty.Iterable[str], column=-1
     return dict(entities)  # No need to keep an OrderedDict after deduplication
 
 
-def parse_file(lines: ty.Iterable[str],
-               column=-1,
-               ) -> ty.Iterable[ty.Tuple[str, ty.Dict[str, ty.List[ty.Tuple[int, str, str]]]]]:
+def parse_file(
+    lines: ty.Iterable[str],
+    column: int = -1,
+) -> ty.Iterable[ty.Tuple[str, ty.Dict[str, ty.List[ty.Tuple[int, str, str]]]]]:
     '''
     Parse a CoNLL file, return document as tuples `(document_name, entities)` where
     entities are mappings
