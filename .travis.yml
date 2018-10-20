@@ -1,20 +1,21 @@
 dist: xenial
 language: python
 python:
-- '3.6'
-- 3.6-dev
+    - '3.6'
+    - '3.6-dev'
+    - '3.7'
 install:
-- python3 -m pip install .
+    - python3 -m pip install .
 script:
-- python3 -m pip install -U pip setuptools wheel
-- pytest
+    - python3 -m pip install -U pip setuptools wheel
+    - pytest
 deploy:
-  provider: pypi
-  user: loicgrobol
-  password:
-    secure: nGJAi1bcw+C7bQ1jhsngM/GKe8lnZKi2/r0oiN6qyh70KmvdSadNHLN+s7QKm39plVOr7yn41IOPApKzieK8RdG7aO8qJlUR2Ii/Np9R8HYmDANCxRqNnG9SmkjAq2eVsWqntFsNW0O5v1vGv8WbUcKrbQOOQs7nX+q0zuT1EdkQ/M35YB7mImOUU+r8eRQSQoGiFUz79D6RIbZkchJ2T9s/z089rmEYoIgxbBwfiIe+rVGHUm89Tle25OdphqOt/tCk3srwKZbxD8bD0Hy8E3lhgKB6iwD6/gSG2orG3RtoQd6ikie5xNgneBWXlEyo0Xe/c5qJPe8OXK5AkVpNtLwXSqfPBz1NNk2KfbsjuMNg7vF7MRGmk93vxfny6xmkFe4R2dEHQ8TEFRBrOqiDHH2KoK2ACx1rNm2kwykSFJ5tpR4Iw19MTfeIbWVu45dCC73r4eTFH+pQXnzukfjLl4PJEHLWvp8RPYAAI8zsODXhVJgNxz92+GthEwjo0MPGDt4x4ZYDd6EtNXcpRwvUM7r0BQ3sY38vvNKZcZdrrjx3XTn8yv2fT88qtzxAmLe3HPfia8ZwU73qQhHNpGdS/2JzDmhpl4R2OdGBGfH5XcLcZ2BVHWEHqWXOc7BHGoF+AiXMtNrSOg6V/hubf/5VC9iyLzbjEoa3ZlDMCXoY4Tw=
-  on:
-    tags: true
-    python: '3.6'
-  distributions: sdist bdist_wheel
-  skip_existing: true
+    provider: pypi
+    user: loicgrobol
+    password:
+        secure: nGJAi1bcw+C7bQ1jhsngM/GKe8lnZKi2/r0oiN6qyh70KmvdSadNHLN+s7QKm39plVOr7yn41IOPApKzieK8RdG7aO8qJlUR2Ii/Np9R8HYmDANCxRqNnG9SmkjAq2eVsWqntFsNW0O5v1vGv8WbUcKrbQOOQs7nX+q0zuT1EdkQ/M35YB7mImOUU+r8eRQSQoGiFUz79D6RIbZkchJ2T9s/z089rmEYoIgxbBwfiIe+rVGHUm89Tle25OdphqOt/tCk3srwKZbxD8bD0Hy8E3lhgKB6iwD6/gSG2orG3RtoQd6ikie5xNgneBWXlEyo0Xe/c5qJPe8OXK5AkVpNtLwXSqfPBz1NNk2KfbsjuMNg7vF7MRGmk93vxfny6xmkFe4R2dEHQ8TEFRBrOqiDHH2KoK2ACx1rNm2kwykSFJ5tpR4Iw19MTfeIbWVu45dCC73r4eTFH+pQXnzukfjLl4PJEHLWvp8RPYAAI8zsODXhVJgNxz92+GthEwjo0MPGDt4x4ZYDd6EtNXcpRwvUM7r0BQ3sY38vvNKZcZdrrjx3XTn8yv2fT88qtzxAmLe3HPfia8ZwU73qQhHNpGdS/2JzDmhpl4R2OdGBGfH5XcLcZ2BVHWEHqWXOc7BHGoF+AiXMtNrSOg6V/hubf/5VC9iyLzbjEoa3ZlDMCXoY4Tw=
+    on:
+        tags: true
+        python: '3.6'
+    distributions: sdist bdist_wheel
+    skip_existing: true
