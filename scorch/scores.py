@@ -3,17 +3,18 @@ CoNLL-2011/2012 scores for coreference detection.
 
 
 ## References
-  - **Scoring Coreference Partitions of Predicted Mentions: A Reference Implementation.** Sameer
-    Pradhan, Xiaoqiang Luo, Marta Recasens, Eduard Hovy, Vincent Ng and Michael Strube. *Proceedings
-    of the 52nd Annual Meeting of the Association for Computational Linguistics*, Baltimore, MD,
-    June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2006.pdf))
-  - **BLANC: Implementing the Rand Index for Coreference Evaluation.** Marta Recasens and Eduard
-    Hovy In: *Natural Language Engineering* 17 (4). Cambridge University Press, 2011.
-    ([pdf](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.300.9229&rep=rep1&type=pdf))
-  - **An Extension of BLANC to System Mentions.** Xiaoqiang Luo, Sameer Pradhan, Marta Recasens and
-    Eduard Hovy. *Proceedings of the 52nd Annual Meeting of the Association for Computational
-    Linguistics*, Baltimore, MD, June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2005.pdf))
-    The reference implementation : <https://github.com/conll/reference-coreference-scorers>
+
+- **Scoring Coreference Partitions of Predicted Mentions: A Reference Implementation.** Sameer
+Pradhan, Xiaoqiang Luo, Marta Recasens, Eduard Hovy, Vincent Ng and Michael Strube. *Proceedings
+of the 52nd Annual Meeting of the Association for Computational Linguistics*, Baltimore, MD,
+June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2006.pdf))
+- **BLANC: Implementing the Rand Index for Coreference Evaluation.** Marta Recasens and Eduard
+Hovy In: *Natural Language Engineering* 17 (4). Cambridge University Press, 2011.
+([pdf](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.300.9229&rep=rep1&type=pdf))
+- **An Extension of BLANC to System Mentions.** Xiaoqiang Luo, Sameer Pradhan, Marta Recasens and
+Eduard Hovy. *Proceedings of the 52nd Annual Meeting of the Association for Computational
+Linguistics*, Baltimore, MD, June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2005.pdf))
+The reference implementation : <https://github.com/conll/reference-coreference-scorers>
 '''
 import math
 

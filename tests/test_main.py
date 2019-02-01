@@ -4,7 +4,7 @@ import unittest
 
 import pytest
 
-from scorch import scorch  # noqa
+from scorch import main  # noqa
 
 
 @pytest.fixture()
@@ -59,17 +59,17 @@ def out_file_multiple(request):
 def test_greedy_clustering(links):
     case = unittest.TestCase()
     expected_clusters = [{1, 2, 3}, {4, 5, 6}, {7, 8}]
-    clusters = scorch.greedy_clustering(links)
+    clusters = main.greedy_clustering(links)
     case.assertCountEqual(clusters, expected_clusters)
 
 
 def test_process_files(gold_file, sys_file, out_file):
     expected_output = out_file
-    output = ''.join(scorch.process_files(gold_file, sys_file))
+    output = ''.join(main.process_files(gold_file, sys_file))
     assert output == expected_output
 
 
 def test_process_dirs(gold_dir, sys_dir, out_file_multiple):
     expected_output = out_file_multiple
-    output = ''.join(scorch.process_dirs(gold_dir, sys_dir))
+    output = ''.join(main.process_dirs(gold_dir, sys_dir))
     assert output == expected_output
