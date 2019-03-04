@@ -50,10 +50,10 @@ def sys_dir(request):
     return (test_file.resolve().parent/'fixtures'/'json'/'multiple'/'sys')
 
 
-@pytest.fixture()
-def out_file_multiple(request):
-    test_file = pathlib.Path(request.module.__file__)
-    return (test_file.resolve().parent/'fixtures'/'json'/'multiple'/'out.txt').open().read()
+# @pytest.fixture()
+# def out_file_multiple(request):
+#     test_file = pathlib.Path(request.module.__file__)
+#     return (test_file.resolve().parent/'fixtures'/'json'/'multiple'/'out.txt').open().read()
 
 
 def test_greedy_clustering(links):
