@@ -200,7 +200,7 @@ def main_entry_point(argv=None):
 
     for name, entities in documents:
         sanitized_name = name.replace('/', '-')
-        out_path = arguments['<out-dir>']/f'{file_name}.{sanitized_name}.json'
+        out_path = arguments['<out-dir>']/f'{sanitized_name}.json'
         with out_path.open('w') as out_stream:
             json.dump(
                 {
