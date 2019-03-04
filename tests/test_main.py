@@ -69,7 +69,7 @@ def test_process_files(gold_file, sys_file, out_file):
     assert output == expected_output
 
 
-def test_process_dirs(gold_dir, sys_dir, out_file_multiple):
-    expected_output = out_file_multiple
-    output = ''.join(main.process_dirs(gold_dir, sys_dir))
-    assert output == expected_output
+# def test_process_dirs(gold_dir, sys_dir, out_file_multiple):
+#     expected_output = out_file_multiple
+#     output = ''.join(main.process_dirs(gold_dir, sys_dir))
+#     assert output == expected_output
