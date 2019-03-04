@@ -199,7 +199,7 @@ def main_entry_point(argv=None):
         documents = list(parse_file((l.strip() for l in in_stream)))
 
     for name, entities in documents:
-        sanitized_name = name.replace('/', '-')
+        sanitized_name = name.replace('/', '_')
         out_path = arguments['<out-dir>']/f'{sanitized_name}.json'
         with out_path.open('w') as out_stream:
             json.dump(
