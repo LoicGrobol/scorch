@@ -134,9 +134,14 @@ def clusters_from_json(fp) -> ty.List[ty.Set]:
     raise ValueError('Unsupported input format')
 
 
-def process_files(gold_fp, sys_fp) -> ty.Iterable[str]:
+def process_files(gold_fp, sys_fp, add_sys_mentions=True) -> ty.Iterable[str]:
     gold_clusters = clusters_from_json(gold_fp)
     sys_clusters = clusters_from_json(sys_fp)
+    if add_sys_mentions:
+        gold_mentions = set().union(*gold_clusters)
+        sys_mentions = set().union(*sys_clusters)
+        extra_mentions = sys_mentions - gold_mentions
+        gold_clusters.extend(set([m]) for m in extra_mentions)
     for name, metric in METRICS.items():
         R, P, F = metric(gold_clusters, sys_clusters)
         yield f'{name}:\tR={R}\tP={P}\tF₁={F}\n'
@@ -144,7 +149,7 @@ def process_files(gold_fp, sys_fp) -> ty.Iterable[str]:
     yield f'CoNLL-2012 average score: {conll_score}\n'
 
 
-def process_dirs(gold_dir, sys_dir) -> ty.Iterable[str]:
+def process_dirs(gold_dir, sys_dir, add_sys_mentions=True) -> ty.Iterable[str]:
     gold_path = pathlib.Path(gold_dir)
     sys_path = pathlib.Path(sys_dir)
     pairs = dict()  # ty.Dict[str, ty.Tuple[pathlib.Path, pathlib.Path]]
@@ -170,6 +175,11 @@ def process_dirs(gold_dir, sys_dir) -> ty.Iterable[str]:
         with gold_file.open() as gold_stream, sys_file.open() as sys_stream:
             gold_clusters = clusters_from_json(gold_stream)
             sys_clusters = clusters_from_json(sys_stream)
+            if add_sys_mentions:
+                gold_mentions = set().union(*gold_clusters)
+                sys_mentions = set().union(*sys_clusters)
+                extra_mentions = sys_mentions - gold_mentions
+                gold_clusters.extend(set([m]) for m in extra_mentions)
         r = {name: metric(gold_clusters, sys_clusters) for name, metric in METRICS.items()}
         individual_results.append(
             (
