@@ -97,3 +97,6 @@ ENV/
 
 # VSCode project settings
 *.code-workspace
+
+# MyPy
+.mypy_cache
