@@ -34,7 +34,7 @@ def links_from_clusters(
     clusters: ty.Iterable[ty.Set],
 ) -> ty.Tuple[
     ty.Sequence[ty.Tuple[ty.Hashable, ty.Hashable]],
-    ty.Sequence[ty.Tuple[ty.Hashable, ty.Hashable]]
+    ty.Sequence[ty.Tuple[ty.Hashable, ty.Hashable]],
 ]:
     r'''
     Return a `(coreference_links, non-coreference_links)` tuple corresponding to a clustering.
@@ -74,8 +74,7 @@ def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set
 
 
 def muc(
-    key: ty.Sequence[ty.Set],
-    response: ty.Sequence[ty.Set],
+    key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
 ) -> ty.Tuple[float, float, float]:
     r'''
     Compute the MUC `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
@@ -99,16 +98,19 @@ def muc(
     '''
     # Edge case
     if all(len(k) == 1 for k in key) or all(len(r) == 1 for r in response):
-        return 0., 0., 0.
-    R = sum(len(k) - sum(1 for _ in trace(k, response)) for k in key)/sum(len(k)-1 for k in key)
-    P = sum(len(r)-sum(1 for _ in trace(r, key)) for r in response)/sum(len(r)-1 for r in response)
+        return 0.0, 0.0, 0.0
+    R = sum(len(k) - sum(1 for _ in trace(k, response)) for k in key) / sum(
+        len(k) - 1 for k in key
+    )
+    P = sum(len(r) - sum(1 for _ in trace(r, key)) for r in response) / sum(
+        len(r) - 1 for r in response
+    )
     F = harmonic_mean((R, P))
     return R, P, F
 
 
 def b_cubed(
-    key: ty.Sequence[ty.Set],
-    response: ty.Sequence[ty.Set],
+    key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
 ) -> ty.Tuple[float, float, float]:
     r'''
     Compute the B³ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
@@ -119,14 +121,12 @@ def b_cubed(
     F &= 2*\frac{PR}{P+R}
     ```
     '''
-    R = (
-        math.fsum(len(k.intersection(r))**2/len(k) for k in key for r in response)
-        / sum(len(k) for k in key)
-    )
-    P = (
-        math.fsum(len(r.intersection(k))**2/len(r) for r in response for k in key)
-        / sum(len(r) for r in response)
-    )
+    R = math.fsum(
+        len(k.intersection(r)) ** 2 / len(k) for k in key for r in response
+    ) / sum(len(k) for k in key)
+    P = math.fsum(
+        len(r.intersection(k)) ** 2 / len(r) for r in response for k in key
+    ) / sum(len(r) for r in response)
     F = harmonic_mean((R, P))
     return R, P, F
 
@@ -150,15 +150,14 @@ def ceaf(
     cost_matrix = np.array([[-score(k, r) for r in response] for k in key])
     row_ind, col_ind = linear_sum_assignment(cost_matrix)
     total_score = -cost_matrix[row_ind, col_ind].sum()
-    R = total_score/math.fsum(score(k, k) for k in key)
-    P = total_score/math.fsum(score(r, r) for r in response)
+    R = total_score / math.fsum(score(k, k) for k in key)
+    P = total_score / math.fsum(score(r, r) for r in response)
     F = harmonic_mean((R, P))
     return R, P, F
 
 
 def ceaf_m(
-    key: ty.Sequence[ty.Set],
-    response: ty.Sequence[ty.Set],
+    key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
 ) -> ty.Tuple[float, float, float]:
     r'''
     Compute the CEAFₘ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
@@ -167,14 +166,15 @@ def ceaf_m(
     Φ_3: (k, r) ⟼ \#k∩r
     ```
     '''
+
     def Φ_3(k, r):
         return len(k.intersection(r))
+
     return ceaf(key, response, Φ_3)
 
 
 def ceaf_e(
-    key: ty.Sequence[ty.Set],
-    response: ty.Sequence[ty.Set],
+    key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
 ) -> ty.Tuple[float, float, float]:
     r'''
     Compute the CEAFₑ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
@@ -186,15 +186,16 @@ def ceaf_e(
     Note: this use the original (Luo, 2005) definition as opposed to the (Pradhan et al. 2014) one
     which inlines the denominators.
     '''
+
     def Φ_4(k, r):
-        return 2*len(k.intersection(r))/(len(k)+len(r))
+        return 2 * len(k.intersection(r)) / (len(k) + len(r))
+
     return ceaf(key, response, Φ_4)
 
 
 # COMBAK: Check the numeric stability
 def blanc(
-    key: ty.Sequence[ty.Set],
-    response: ty.Sequence[ty.Set],
+    key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
 ) -> ty.Tuple[float, float, float]:
     r'''
     Return the BLANC `$(R, P, F)$` scores for a `#response` clustering given a `#key` clustering.
@@ -210,15 +211,16 @@ def blanc(
     '''
     C_score, N_score = detailed_blanc(key, response)
     if C_score is None:
+        assert N_score is not None
         return N_score
     if N_score is None:
+        assert C_score is not None
         return C_score
     return np.mean((C_score, N_score), axis=0).tolist()
 
 
 def detailed_blanc(
-    key: ty.Sequence[ty.Set],
-    response: ty.Sequence[ty.Set],
+    key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
 ) -> ty.Tuple[
     ty.Union[ty.Tuple[float, float, float], None],
     ty.Union[ty.Tuple[float, float, float], None],
@@ -230,9 +232,9 @@ def detailed_blanc(
     # of the mentions to know if we are very good or very bad.
     if len(key) == len(response) == 1 and len(key[0]) == len(response[0]) == 1:
         if key[0] == response[0]:
-            return ((1., 1., 1.), (1., 1., 1.))
+            return ((1.0, 1.0, 1.0), (1.0, 1.0, 1.0))
         else:
-            return ((0., 0., 0.), (0., 0., 0.))
+            return ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
 
     C_k, N_k = map(set, links_from_clusters(key))
     C_r, N_r = map(set, links_from_clusters(response))
@@ -241,16 +243,16 @@ def detailed_blanc(
     TP_n = N_k.intersection(N_r)
 
     if not C_k or not C_r:
-        R_c, P_c, F_c = (1., 1., 1.) if C_k == C_r else (0., 0., 0.)
+        R_c, P_c, F_c = (1.0, 1.0, 1.0) if C_k == C_r else (0.0, 0.0, 0.0)
     else:
-        R_c, P_c = len(TP_c)/len(C_k), len(TP_c)/len(C_r)
-        F_c = 2*len(TP_c)/(len(C_k)+len(C_r))
+        R_c, P_c = len(TP_c) / len(C_k), len(TP_c) / len(C_r)
+        F_c = 2 * len(TP_c) / (len(C_k) + len(C_r))
 
     if not N_k or not N_r:
-        R_n, P_n, F_n = (1., 1., 1.) if N_k == N_r else (0., 0., 0.)
+        R_n, P_n, F_n = (1.0, 1.0, 1.0) if N_k == N_r else (0.0, 0.0, 0.0)
     else:
-        R_n, P_n = len(TP_n)/len(N_k), len(TP_n)/len(N_r)
-        F_n = 2*len(TP_n)/(len(N_k)+len(N_r))
+        R_n, P_n = len(TP_n) / len(N_k), len(TP_n) / len(N_r)
+        F_n = 2 * len(TP_n) / (len(N_k) + len(N_r))
 
     # Edge cases
     if not C_k:
