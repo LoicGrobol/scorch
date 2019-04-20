@@ -31,8 +31,7 @@ from docopt import docopt
 
 
 def parse_block(
-    lines: ty.Iterable[str],
-    column: int = -1
+    lines: ty.Iterable[str], column: int = -1
 ) -> ty.Dict[str, ty.List[ty.Tuple[str, str]]]:
     '''
     Parse a bloc (≈sentence) in the CoNLL format, return entities as mappings
@@ -73,7 +72,9 @@ def parse_block(
                 raise ValueError(f'Unbalanced parentheses at line {i}: {l!r}')
             entities[m.group(1)].append((start, row_n))
     if any(dangling.values()):
-        raise ValueError(f'Dangling mentions at line {i}: {[e for e, v in dangling.items() if e]}')
+        raise ValueError(
+            f'Dangling mentions at line {i}: {[e for e, v in dangling.items() if e]}'
+        )
 
     return entities
 
@@ -106,17 +107,21 @@ def parse_document(
             block_entities = parse_block(block)
         except ValueError as e:
             raise ValueError(
-                'Parse error in block {i}:\n{e}\n{block}'.format(i=i, e=e,
-                                                                 block="\n".join(block)))
+                'Parse error in block {i}:\n{e}\n{block}'.format(
+                    i=i, e=e, block="\n".join(block)
+                )
+            )
         # Merge this block entities
-        for e, mentions in block_entities.items():
-            entities.setdefault(e, []).extend((i, start, end) for start, end in mentions)
+        for ent, mentions in block_entities.items():
+            entities.setdefault(ent, []).extend(
+                (i, start, end) for start, end in mentions
+            )
 
     # Deduplicate mentions : if a mention is in several entities, leave only to the entity that
     # appeared first. If a mention appears several time in an entity, leave it only once
     seen = set()
     for ent, men in entities.items():
-        men = sorted((set(men)-seen))
+        men = sorted((set(men) - seen))
         if not men:
             del entities[ent]
         entities[ent] = men
@@ -125,8 +130,7 @@ def parse_document(
 
 
 def parse_file(
-    lines: ty.Iterable[str],
-    column: int = -1,
+    lines: ty.Iterable[str], column: int = -1
 ) -> ty.Iterable[ty.Tuple[str, ty.Dict[str, ty.List[ty.Tuple[int, str, str]]]]]:
     '''
     Parse a CoNLL file, return document as tuples `(document_name, entities)` where
@@ -200,16 +204,19 @@ def main_entry_point(argv=None):
 
     for name, entities in documents:
         sanitized_name = name.replace('/', '_')
-        out_path = arguments['<out-dir>']/f'{sanitized_name}.json'
+        out_path = arguments['<out-dir>'] / f'{sanitized_name}.json'
         with out_path.open('w') as out_stream:
             json.dump(
                 {
                     'name': name,
                     'type': 'clusters',
-                    'clusters': {e: [f'{block}.{start}-{end}' for block, start, end in c]
-                                 for e, c in entities.items()},
+                    'clusters': {
+                        e: [f'{block}.{start}-{end}' for block, start, end in c]
+                        for e, c in entities.items()
+                    },
                 },
-                out_stream)
+                out_stream,
+            )
 
 
 if __name__ == '__main__':
