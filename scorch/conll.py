@@ -195,10 +195,6 @@ def main_entry_point(argv=None):
     else:
         arguments['<out-dir>'] = pathlib.Path(arguments['<out-dir>'])
 
-    if arguments['<conll-file>'] == '-':
-        file_name = 'stdin'
-    else:
-        file_name = pathlib.Path(arguments['<conll-file>']).name
     with smart_open(arguments['<conll-file>']) as in_stream:
         documents = list(parse_file((l.strip() for l in in_stream)))
 

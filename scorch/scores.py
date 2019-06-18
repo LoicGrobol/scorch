@@ -148,6 +148,8 @@ def ceaf(
     clusters that maximizes `$∑_{k∈K}C(k, A(k))$`.
     '''
     cost_matrix = np.array([[-score(k, r) for r in response] for k in key])
+    # TODO: See https://github.com/allenai/allennlp/issues/2946 for ideas on speeding
+    # the next line up
     row_ind, col_ind = linear_sum_assignment(cost_matrix)
     total_score = -cost_matrix[row_ind, col_ind].sum()
     R = total_score / math.fsum(score(k, k) for k in key)
