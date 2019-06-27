@@ -166,7 +166,7 @@ def process_dirs(gold_dir, sys_dir, add_sys_mentions=True) -> ty.Iterable[str]:
         try:
             gold_file = next(gold_path.glob(f"{sys_file.stem}*"))
         except StopIteration:
-            raise ValueError(f"No matching sys file for {sys_file}")
+            raise ValueError(f"No matching gold file for {sys_file}")
         pairs[sys_file.stem] = (gold_file, sys_file)
 
     individual_results = (
