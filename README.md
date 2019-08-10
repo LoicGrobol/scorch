@@ -5,7 +5,6 @@ Scorch<a id="footnote-0-1-backref" href="#footnote-0-1">¹</a>
 
 [![Build Status](https://travis-ci.org/LoicGrobol/scorch.svg?branch=master)](https://travis-ci.org/LoicGrobol/scorch)
 [![PyPI](https://img.shields.io/pypi/v/scorch.svg)](https://pypi.org/project/scorch)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/LoicGrobol/scorch.svg?logo=lgtm)](https://lgtm.com/projects/g/LoicGrobol/scorch/alerts/)
 
 This is an alternative implementation of the coreference scorer for the CoNLL-2011/2012 shared tasks on coreference resolution.
 
