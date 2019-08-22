@@ -140,8 +140,8 @@ def ceaf(
     Compute the CEAF `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering
     using the `#score` alignment score function, that is
     ```math
-    R &= \frac{∑_{k∈K}C(k, A(k))}{∑_{k∈K}\#k}\\
-    P &= \frac{∑_{r∈R}C(r, A⁻¹(r))}{∑_{r∈R}\#r}\\
+    R &= \frac{∑_{k∈K}C(k, A(k))}{∑_{k∈K}C(k, k)}\\
+    P &= \frac{∑_{r∈R}C(r, A⁻¹(r))}{∑_{r∈R}C(r, r)}\\
     F &= 2*\frac{PR}{P+R}
     ```
     Where `$C$` is `#score` and `$A$` is a one-to-one mapping from key clusters to response
