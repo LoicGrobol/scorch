@@ -116,8 +116,8 @@ def b_cubed(
     Compute the B³ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is
     ```math
-    R &= \frac{∑_{k∈K}∑_{r∈R}\frac{(\#k∩r)²}{#k}}{∑_{k∈K}\#k}\\
-    P &= \frac{∑_{r∈R}∑_{k∈K}\frac{(\#r∩k)²}{#r}}{∑_{r∈R}\#r}\\
+    R &= \frac{∑_{k∈K}∑_{r∈R}\frac{(\#k∩r)²}{\#k}}{∑_{k∈K}\#k}\\
+    P &= \frac{∑_{r∈R}∑_{k∈K}\frac{(\#r∩k)²}{\#r}}{∑_{r∈R}\#r}\\
     F &= 2*\frac{PR}{P+R}
     ```
     '''
@@ -185,7 +185,7 @@ def ceaf_e(
     ```math
     Φ₄: (k, r) ⟼ \frac{2×\#k∩r}{\#k+\#r}
     ```
-    Note: this use the original (Luo, 2005) definition as opposed to the (Pradhan et al. 2014) one
+    Note: this use the original (Luo, 2005) definition as opposed to Pradhan et al. (2014)'s one
     which inlines the denominators.
     '''
 
