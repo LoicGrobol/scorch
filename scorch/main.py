@@ -49,6 +49,7 @@ METRICS = {
     "CEAF_m": scores.ceaf_m,
     "CEAF_e": scores.ceaf_e,
     "BLANC": scores.blanc,
+    "LEA": scores.lea,
 }
 
 

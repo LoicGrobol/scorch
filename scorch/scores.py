@@ -5,16 +5,20 @@ CoNLL-2011/2012 scores for coreference detection.
 ## References
 
 - **Scoring Coreference Partitions of Predicted Mentions: A Reference Implementation.** Sameer
-Pradhan, Xiaoqiang Luo, Marta Recasens, Eduard Hovy, Vincent Ng and Michael Strube. *Proceedings
-of the 52nd Annual Meeting of the Association for Computational Linguistics*, Baltimore, MD,
-June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2006.pdf))
-- **BLANC: Implementing the Rand Index for Coreference Evaluation.** Marta Recasens and Eduard
-Hovy In: *Natural Language Engineering* 17 (4). Cambridge University Press, 2011.
-([pdf](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.300.9229&rep=rep1&type=pdf))
+  Pradhan, Xiaoqiang Luo, Marta Recasens, Eduard Hovy, Vincent Ng and Michael Strube. *Proceedings
+  of the 52nd Annual Meeting of the Association for Computational Linguistics*, Baltimore, MD, June
+  2014. ([pdf](http://aclweb.org/anthology/P14/P14-2006))
+- **BLANC: Implementing the Rand Index for Coreference Evaluation.** Marta Recasens and Eduard Hovy
+  In: *Natural Language Engineering* 17 (4). Cambridge University Press, 2011.
+  ([pdf](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.300.9229&rep=rep1&type=pdf))
 - **An Extension of BLANC to System Mentions.** Xiaoqiang Luo, Sameer Pradhan, Marta Recasens and
-Eduard Hovy. *Proceedings of the 52nd Annual Meeting of the Association for Computational
-Linguistics*, Baltimore, MD, June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2005.pdf))
-The reference implementation : <https://github.com/conll/reference-coreference-scorers>
+  Eduard Hovy. *Proceedings of the 52nd Annual Meeting of the Association for Computational
+  Linguistics*, Baltimore, MD, June 2014. ([pdf](http://aclweb.org/anthology/P14-2005)) The
+  reference implementation : <https://github.com/conll/reference-coreference-scorers>
+- **Which Coreference Evaluation Metric Do You Trust? A Proposal for a Link-Based Entity Aware
+  Metric** Nafise Sadat Moosavi and Michael Strube. *Proceedings of the 54th Annual Meeting of the
+  Association for Computational Linguistics* Berlin, Germany, June 2016.
+  ([pdf](http://www.aclweb.org/anthology/P16-1060))
 '''
 import math
 
@@ -79,6 +83,7 @@ def muc(
     r'''
     Compute the MUC `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is
+
     ```math
     R &= \frac{∑_{k∈K}(\#k-\#p(k, R))}{∑_{k∈K}(\#k-1)}\\
     P &= \frac{∑_{r∈R}(\#r-\#p(r, K))}{∑_{r∈R}(\#r-1)}\\
@@ -115,6 +120,7 @@ def b_cubed(
     r'''
     Compute the B³ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is
+
     ```math
     R &= \frac{∑_{k∈K}∑_{r∈R}\frac{(\#k∩r)²}{\#k}}{∑_{k∈K}\#k}\\
     P &= \frac{∑_{r∈R}∑_{k∈K}\frac{(\#r∩k)²}{\#r}}{∑_{r∈R}\#r}\\
@@ -139,6 +145,7 @@ def ceaf(
     r'''
     Compute the CEAF `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering
     using the `#score` alignment score function, that is
+
     ```math
     R &= \frac{∑_{k∈K}C(k, A(k))}{∑_{k∈K}C(k, k)}\\
     P &= \frac{∑_{r∈R}C(r, A⁻¹(r))}{∑_{r∈R}C(r, r)}\\
@@ -164,6 +171,7 @@ def ceaf_m(
     r'''
     Compute the CEAFₘ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is the CEAF score for the `$Φ_3$` score function
+
     ```math
     Φ_3: (k, r) ⟼ \#k∩r
     ```
@@ -182,6 +190,7 @@ def ceaf_e(
     Compute the CEAFₑ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
     clustering, that is the CEAF score for the `$Φ₄$` score function (aka the Sørensen–Dice
     coefficient).
+
     ```math
     Φ₄: (k, r) ⟼ \frac{2×\#k∩r}{\#k+\#r}
     ```
@@ -263,6 +272,61 @@ def detailed_blanc(
         return ((R_c, P_c, F_c), None)
 
     return ((R_c, P_c, F_c), (R_n, P_n, F_n))
+
+
+def lea_links(entity: ty.Set, other: ty.Optional[ty.Set] = None) -> int:
+    """Return the number of links in an entity as understood by Moosabi and Strube (2016).
+    If `other` if given, return the number of common links between `entity` and `other`.
+    """
+    # Edge case for singleton mentions
+    if len(entity) == 1:
+        if other is not None:
+            if len(entity) == 1 and entity == other:
+                return 1
+            return 0
+        return 1
+    if other is not None:
+        common = len(entity.intersection(other))
+    else:
+        common = len(entity)
+    if common < 2:
+        return 0
+    return (common * (common - 1)) // 2
+
+
+def lea(
+    key: ty.Sequence[ty.Set],
+    response: ty.Sequence[ty.Set],
+    importance: ty.Callable[[ty.Set], ty.Union[float, int]] = len,
+) -> ty.Tuple[float, float, float]:
+    """Compute the LEA `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering."""
+    key_importances = [importance(k) for k in key]
+    key_resolution_scores = [
+        math.fsum(
+            common_links / lea_links(r)
+            for r in response
+            for common_links in (lea_links(k, r),)
+            if common_links
+        )
+        for k in key
+    ]
+    R = np.average(key_resolution_scores, weights=key_importances).item()
+
+    response_importances = [importance(r) for r in response]
+    response_resolution_scores = [
+        math.fsum(
+            common_links / lea_links(k)
+            for k in key
+            for common_links in (lea_links(r, k),)
+            if common_links
+        )
+        for r in response
+    ]
+    P = np.average(response_resolution_scores, weights=response_importances).item()
+
+    F = harmonic_mean((R, P))
+
+    return (R, P, F)
 
 
 def conll2012(key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]) -> float:
