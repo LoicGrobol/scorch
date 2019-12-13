@@ -218,7 +218,7 @@ def blanc(
     if N_score is None:
         assert C_score is not None
         return C_score
-    return np.mean((C_score, N_score), axis=0).tolist()
+    return tuple(np.mean((C_score, N_score), axis=0).tolist())
 
 
 def detailed_blanc(
