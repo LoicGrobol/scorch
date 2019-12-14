@@ -218,12 +218,15 @@ def blanc(
     '''
     C_score, N_score = detailed_blanc(key, response)
     if C_score is None:
-        assert N_score is not None
+        assert N_score is not None  # nosec:B101
         return N_score
     if N_score is None:
-        assert C_score is not None
+        assert C_score is not None  # nosec:B101
         return C_score
-    return tuple(np.mean((C_score, N_score), axis=0).tolist())
+    return ty.cast(
+        ty.Tuple[float, float, float],
+        tuple(np.mean((C_score, N_score), axis=0).tolist()),
+    )
 
 
 def detailed_blanc(

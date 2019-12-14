@@ -42,8 +42,8 @@ def parse_block(
     # We have to keep track of the order in which the entites are created (i.e.) the begining of
     # their first mention, since it will be used to determine which entity gets the mention in case
     # of duplication
-    entities = OrderedDict()
-    dangling = defaultdict(list)
+    entities: ty.Dict[str, ty.List[ty.Tuple[str, str]]] = OrderedDict()
+    dangling: ty.Dict[str, ty.List[str]] = defaultdict(list)
     for i, l in enumerate(lines):
         row = l.split()
 
@@ -81,7 +81,7 @@ def parse_block(
 
 def split_blocks(lines: ty.Iterable[str]) -> ty.Iterable[ty.List[str]]:
     '''Split blocks in a CoNLL document.'''
-    buffer = []
+    buffer: ty.List[str] = []
     for l in lines:
         if not l or l.isspace():
             yield buffer
@@ -101,7 +101,7 @@ def parse_document(
     entity_id → [(block_number, mention_start, mention_end), …]
     ```
     '''
-    entities = OrderedDict()
+    entities: ty.Dict[str, ty.List[ty.Tuple[int, str, str]]] = OrderedDict()
     for i, block in enumerate(split_blocks(lines)):
         try:
             block_entities = parse_block(block)
@@ -119,7 +119,7 @@ def parse_document(
 
     # Deduplicate mentions : if a mention is in several entities, leave only to the entity that
     # appeared first. If a mention appears several time in an entity, leave it only once
-    seen = set()
+    seen: ty.Set[ty.Tuple[int, str, str]] = set()
     for ent, men in entities.items():
         men = sorted((set(men) - seen))
         if not men:
@@ -139,7 +139,7 @@ def parse_file(
     entity_id → [(block_number, mention_start, mention_end), …]
     ```
     '''
-    buffer = []
+    buffer: ty.List[str] = []
     for l in lines:
         if l.startswith('#'):
             m = re.match(r'#\s*begin document \((.*?)\);(\s*part (.*))?', l)
@@ -160,14 +160,17 @@ def parse_file(
 
 # Thanks http://stackoverflow.com/a/17603000/760767
 @contextlib.contextmanager
-def smart_open(filename: str = None, mode: str = 'r', *args, **kwargs):
-    '''Open files and i/o streams transparently.'''
-    if filename == '-':
-        if 'r' in mode:
+def smart_open(
+    filename: ty.Union[str, pathlib.Path], mode: str = "r", *args, **kwargs
+) -> ty.Generator[ty.IO, None, None]:
+    """Open files and i/o streams transparently."""
+    fh: ty.IO
+    if filename == "-":
+        if "r" in mode:
             stream = sys.stdin
         else:
             stream = sys.stdout
-        if 'b' in mode:
+        if "b" in mode:
             fh = stream.buffer
         else:
             fh = stream

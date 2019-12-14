@@ -97,8 +97,8 @@ def greedy_clustering(
     [2]: http://www.boost.org/doc/libs/1_66_0/libs/graph/doc/incremental_components.html
     [3]: https://networkx.github.io/documentation/networkx-1.9.1/reference/algorithms.mst.html
     """
-    clusters = dict()  # type: ty.Dict[ty.Hashable, ty.List]
-    heads = dict()  # type: ty.Dict[ty.Hashable, ty.Union[ty.Hashable, None]]
+    clusters: ty.Dict[ty.Hashable, ty.List] = dict()
+    heads: ty.Dict[ty.Hashable, ty.Union[ty.Hashable, None]] = dict()
     for source, target in links:
         source_head = heads.setdefault(source, source)
         source_cluster = clusters.setdefault(source_head, [source_head])
@@ -147,8 +147,8 @@ def process_files(
     gold_clusters = clusters_from_json(gold_fp)
     sys_clusters = clusters_from_json(sys_fp)
     if add_sys_mentions:
-        gold_mentions = set().union(*gold_clusters)
-        sys_mentions = set().union(*sys_clusters)
+        gold_mentions: ty.Set[ty.Hashable] = set(m for c in gold_clusters for m in c)
+        sys_mentions: ty.Set[ty.Hashable] = set(m for c in sys_clusters for m in c)
         extra_mentions = sys_mentions - gold_mentions
         gold_clusters.extend(set([m]) for m in extra_mentions)
     for name, metric in METRICS.items():
@@ -187,8 +187,12 @@ def process_dirs(gold_dir, sys_dir, add_sys_mentions=True) -> ty.Iterable[str]:
             gold_clusters = clusters_from_json(gold_stream)
             sys_clusters = clusters_from_json(sys_stream)
             if add_sys_mentions:
-                gold_mentions = set().union(*gold_clusters)
-                sys_mentions = set().union(*sys_clusters)
+                gold_mentions: ty.Set[ty.Hashable] = set(
+                    m for c in gold_clusters for m in c
+                )
+                sys_mentions: ty.Set[ty.Hashable] = set(
+                    m for c in sys_clusters for m in c
+                )
                 extra_mentions = sys_mentions - gold_mentions
                 gold_clusters.extend(set([m]) for m in extra_mentions)
         r = {
