@@ -97,13 +97,19 @@ def greedy_clustering(
     [2]: http://www.boost.org/doc/libs/1_66_0/libs/graph/doc/incremental_components.html
     [3]: https://networkx.github.io/documentation/networkx-1.9.1/reference/algorithms.mst.html
     """
+    # The idea is to build an element→cluster mapping. This way, when we get a a→b link, we just
+    # add a to the cluster of b.
     clusters: ty.Dict[ty.Hashable, ty.List] = dict()
-    heads: ty.Dict[ty.Hashable, ty.Union[ty.Hashable, None]] = dict()
+    # The issue with this is that it is tedious to deduplicate afterward since Python `set` can't
+    # be passed a custom key.
+    # So instead we use the first element we encounter in each cluster as its head, and keep two
+    # mappings: element→head and head→cluster.
+    heads: ty.Dict[ty.Hashable, ty.Hashable] = dict()
     for source, target in links:
         source_head = heads.setdefault(source, source)
         source_cluster = clusters.setdefault(source_head, [source_head])
 
-        target_head = heads.setdefault(target, None)
+        target_head = heads.get(target)
         if target_head is None:
             heads[target] = source_head
             source_cluster.append(target)
