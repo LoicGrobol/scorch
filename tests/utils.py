@@ -1,6 +1,7 @@
 import hypothesis
 from hypothesis import strategies as st
 
+
 @st.composite
 def clusterings(draw, max_size=None, allow_singletons=True):
     n_elements = draw(st.integers(min_value=1, max_value=max_size))
