@@ -21,3 +21,10 @@ def test_perfect(metric, clusters: ty.Sequence[ty.Set[int]]):
 def test_perfect_muc(clusters: ty.Sequence[ty.Set[int]]):
     """Test that all the scores are `1.0` for a perfect system output for MUC"""
     assert scores.muc(clusters, clusters) == (1.0, 1.0, 1.0)
+
+
+@hypothesis.given(key=clusterings(max_size=256), response=clusterings(max_size=256))
+def test_blanc_consistency(key, response):
+    fast_blanc = scores.fast_detailed_blanc(key, response)
+    slow_blanc = scores.detailed_blanc(key, response)
+    assert fast_blanc == slow_blanc
