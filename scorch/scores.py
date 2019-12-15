@@ -26,38 +26,6 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 
 
-def links_from_clusters(
-    clusters: ty.Iterable[ty.Set],
-) -> ty.Tuple[
-    ty.Set[ty.Tuple[ty.Hashable, ty.Hashable]],
-    ty.Set[ty.Tuple[ty.Hashable, ty.Hashable]],
-]:
-    r'''
-    Return a `(coreference_links, non-coreference_links)` tuple corresponding to a clustering.
-
-    The links are given as sorted couples for uniqueness
-    '''
-    clusters_lst = [list(c) for c in clusters]
-    C = set()
-    N = set()
-    for i, c in enumerate(clusters_lst[:-1]):
-        for j, e in enumerate(c[:-1]):
-            # Since the links are symmetric, we only add the links between `e` and
-            # the following mentions
-            for f in c[j + 1 :]:
-                C.add((e, f) if e <= f else (f, e))
-        for other in clusters_lst[i + 1 :]:
-            for e in c:
-                for f in other:
-                    N.add((e, f) if e <= f else (f, e))
-    #  We missed the coreference links for the last cluster, add them here
-    last_cluster = clusters_lst[-1]
-    for j, e in enumerate(last_cluster):
-        for f in last_cluster[j + 1 :]:
-            C.add((e, f) if e <= f else (f, e))
-    return C, N
-
-
 def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set]:
     r'''
     Return the partition of `#cluster` induced by `#partition`, that is
@@ -253,6 +221,38 @@ def blanc(
     )
 
 
+def links_from_clusters(
+    clusters: ty.Iterable[ty.Set],
+) -> ty.Tuple[
+    ty.Set[ty.Tuple[ty.Hashable, ty.Hashable]],
+    ty.Set[ty.Tuple[ty.Hashable, ty.Hashable]],
+]:
+    r'''
+    Return a `(coreference_links, non-coreference_links)` tuple corresponding to a clustering.
+
+    The links are given as sorted couples for uniqueness
+    '''
+    clusters_lst = [list(c) for c in clusters]
+    C = set()
+    N = set()
+    for i, c in enumerate(clusters_lst[:-1]):
+        for j, e in enumerate(c[:-1]):
+            # Since the links are symmetric, we only add the links between `e` and
+            # the following mentions
+            for f in c[j + 1 :]:
+                C.add((e, f) if e <= f else (f, e))
+        for other in clusters_lst[i + 1 :]:
+            for e in c:
+                for f in other:
+                    N.add((e, f) if e <= f else (f, e))
+    #  We missed the coreference links for the last cluster, add them here
+    last_cluster = clusters_lst[-1]
+    for j, e in enumerate(last_cluster):
+        for f in last_cluster[j + 1 :]:
+            C.add((e, f) if e <= f else (f, e))
+    return C, N
+
+
 def detailed_blanc(
     key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
 ) -> ty.Tuple[
@@ -278,14 +278,18 @@ def detailed_blanc(
     c_k, n_k = len(C_k), len(N_k)
     c_r, n_r = len(C_r), len(N_r)
 
-    if not C_k or not C_r:
-        R_c, P_c, F_c = (1.0, 1.0, 1.0) if c_k == c_r else (0.0, 0.0, 0.0)
+    if not c_k and not c_r:
+        R_c, P_c, F_c = (1.0, 1.0, 1.0)
+    elif not c_k or not c_r:
+        R_c, P_c, F_c = (0.0, 0.0, 0.0)
     else:
         R_c, P_c = tp_c / c_k, tp_c / c_r
         F_c = 2 * tp_c / (c_k + c_r)
 
-    if not N_k or not N_r:
-        R_n, P_n, F_n = (1.0, 1.0, 1.0) if N_k == N_r else (0.0, 0.0, 0.0)
+    if not n_k and not n_r:
+        R_n, P_n, F_n = (1.0, 1.0, 1.0)
+    elif not n_k or not n_r:
+        R_n, P_n, F_n = (0.0, 0.0, 0.0)
     else:
         R_n, P_n = tp_n / n_k, tp_n / n_r
         F_n = 2 * tp_n / (n_k + n_r)
@@ -297,6 +301,30 @@ def detailed_blanc(
         return ((R_c, P_c, F_c), None)
 
     return ((R_c, P_c, F_c), (R_n, P_n, F_n))
+
+
+class AdjacencyReturn(ty.NamedTuple):
+    """Represents a clustering of integers as an adjacency matrix and a presence mask"""
+
+    adjacency: np.ndarray
+    presence: np.ndarray
+
+
+def adjacency(
+    clusters: ty.Sequence[ty.Sequence[int]], num_elts: int
+) -> AdjacencyReturn:
+    adjacency = np.zeros((num_elts, num_elts), dtype=np.bool)
+    presence = np.zeros(num_elts, dtype=np.bool)
+    # FIXME: the complexity of this is `$∑|c|²$`, so it is fast when there are many small clusters
+    # but slow when there are big clusters
+    for c in clusters:
+        for i, e in enumerate(c[:-1]):
+            presence[e] = True
+            for f in c[i + 1 :]:
+                adjacency[e, f] = True
+                adjacency[f, e] = True
+        presence[c[-1]] = True
+    return AdjacencyReturn(adjacency, presence)
 
 
 def fast_detailed_blanc(
@@ -319,39 +347,46 @@ def fast_detailed_blanc(
     (key, response), mentions_map = remap_clusterings([key, response])
     num_mentions = len(mentions_map)
 
-    # FIXME: these loops are still slower than necessary
-    key_links = np.zeros((num_mentions, num_mentions), dtype=np.bool)
-    for c in key:
-        for i, e in enumerate(c[:-1]):
-            for f in c[i + 1 :]:
-                key_links[e, f] = True
-                key_links[f, e] = True
+    key_coref_links, key_presence = adjacency(key, num_mentions)
+    response_coref_links, response_presence = adjacency(response, num_mentions)
 
-    response_links = np.zeros((num_mentions, num_mentions), dtype=np.bool)
-    for c in response:
-        for i, e in enumerate(c[:-1]):
-            for f in c[i + 1 :]:
-                response_links[e, f] = True
-                response_links[f, e] = True
+    tp_c = np.logical_and(key_coref_links, response_coref_links).sum() // 2
+    c_k = key_coref_links.sum() // 2
+    c_r = response_coref_links.sum() // 2
 
-    # Headache ahead, remember that the diagonals are all 0
-    breakpoint()
-    num_links = num_mentions * (num_mentions - 1)
-    tp_c = np.logical_and(key_links, response_links).sum() / 2
-    tp_n = num_links - np.logical_or(key_links, response_links).sum() / 2
-    c_k = key_links.sum() / 2
-    c_r = response_links.sum() / 2
-    n_k = num_links - c_k
-    n_r = num_links - c_r
+    # Headache ahead
+    # There is no link between a mention and itself
+    common_links = np.logical_and(
+        np.logical_and(
+            np.outer(key_presence, key_presence),
+            np.outer(response_presence, response_presence),
+        ),
+        np.logical_not(np.identity(num_mentions, dtype=np.bool)),
+    )
+    tp_n = (
+        np.logical_and(
+            common_links,
+            np.logical_not(np.logical_or(key_coref_links, response_coref_links)),
+        ).sum()
+        / 2
+    )
+    num_key_mentions = key_presence.sum()
+    n_k = (num_key_mentions * (num_key_mentions - 1)) // 2 - c_k
+    num_response_mentions = response_presence.sum()
+    n_r = (num_response_mentions * (num_response_mentions - 1)) // 2 - c_r
 
-    if not c_k or not c_r:
-        R_c, P_c, F_c = (1.0, 1.0, 1.0) if c_k == c_r else (0.0, 0.0, 0.0)
+    if not c_k and not c_r:
+        R_c, P_c, F_c = (1.0, 1.0, 1.0)
+    elif not c_k or not c_r:
+        R_c, P_c, F_c = (0.0, 0.0, 0.0)
     else:
         R_c, P_c = tp_c / c_k, tp_c / c_r
         F_c = 2 * tp_c / (c_k + c_r)
 
-    if not n_k or not n_r:
-        R_n, P_n, F_n = (1.0, 1.0, 1.0) if n_k == n_r else (0.0, 0.0, 0.0)
+    if not n_k and not n_r:
+        R_n, P_n, F_n = (1.0, 1.0, 1.0)
+    elif not n_k or not n_r:
+        R_n, P_n, F_n = (0.0, 0.0, 0.0)
     else:
         R_n, P_n = tp_n / n_k, tp_n / n_r
         F_n = 2 * tp_n / (n_k + n_r)
