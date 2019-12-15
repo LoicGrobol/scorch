@@ -311,19 +311,20 @@ class AdjacencyReturn(ty.NamedTuple):
 
 
 def adjacency(
-    clusters: ty.Sequence[ty.Sequence[int]], num_elts: int
+    clusters: ty.List[ty.List[int]], num_elts: int
 ) -> AdjacencyReturn:
     adjacency = np.zeros((num_elts, num_elts), dtype=np.bool)
     presence = np.zeros(num_elts, dtype=np.bool)
-    # FIXME: the complexity of this is `$∑|c|²$`, so it is fast when there are many small clusters
-    # but slow when there are big clusters
+    # **Note** The nested loop makes the complexity of this `$∑|c|²$` but we are only doing memory
+    # access, which is really fast, so this is not really an issue. As comparison, doing it by
+    # computing the Gram matrix one-hot elt-cluster attribution matrix was making `fast_blanc` 3×
+    # slower than the naïve version.
     for c in clusters:
-        for i, e in enumerate(c[:-1]):
+        for e in c:
             presence[e] = True
-            for f in c[i + 1 :]:
-                adjacency[e, f] = True
-                adjacency[f, e] = True
-        presence[c[-1]] = True
+            for f in c:
+                if f != e:
+                    adjacency[e, f] = True
     return AdjacencyReturn(adjacency, presence)
 
 
