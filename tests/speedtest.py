@@ -9,12 +9,18 @@ from scorch import main as scorch
 tests_dir = pathlib.Path(__file__).resolve().parent
 
 Clustering = ty.Sequence[ty.Set[ty.Hashable]]
+Metric = ty.Callable[[Clustering, Clustering], ty.Tuple[float, float, float]]
 
 
-def test_metrics(clusters: Clustering, num_runs: int = 100, repeat: int = 5):
+def test_metrics(
+    clusters: Clustering,
+    num_runs: int = 100,
+    repeat: int = 5,
+    metrics: ty.Dict[str, Metric] = scorch.METRICS,
+):
     print(f"Testing metrics speed: {num_runs} calls, best of {repeat}")
     print("metric\ttotal\tper call")
-    for (name, fun) in scorch.METRICS.items():
+    for (name, fun) in metrics.items():
         runtime = min(
             timeit.repeat(
                 "fun(clusters, clusters)",
