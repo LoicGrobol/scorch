@@ -1,26 +1,20 @@
+import itertools as it
 import pathlib
 import timeit
 import typing as ty
 
-from scorch import scores
 from scorch import main as scorch
 
 
 tests_dir = pathlib.Path(__file__).resolve().parent
 
-Clustering = ty.Sequence[ty.Set[ty.Hashable]]
-Metric = ty.Callable[[Clustering, Clustering], ty.Tuple[float, float, float]]
-
 
 def test_metrics(
-    clusters: Clustering,
-    num_runs: int = 100,
-    repeat: int = 5,
-    metrics: ty.Dict[str, Metric] = scorch.METRICS,
+    clusters: ty.Sequence[ty.Set[ty.Hashable]], num_runs: int = 100, repeat: int = 5
 ):
     print(f"Testing metrics speed: {num_runs} calls, best of {repeat}")
     print("metric\ttotal\tper call")
-    for (name, fun) in metrics.items():
+    for (name, fun) in scorch.METRICS.items():
         runtime = min(
             timeit.repeat(
                 "fun(clusters, clusters)",
@@ -32,27 +26,20 @@ def test_metrics(
         print(f"{name}\t{runtime}\t{runtime/num_runs}")
 
 
-def test_blanc_speedup(clusters: Clustering, num_runs: int = 100, repeat: int = 5):
-    print(f"Testing BLANC speedup: {num_runs} calls, best of {repeat}")
-    slow_runtime = min(
-        timeit.repeat(
-            "blanc(clusters, clusters, False)",
-            globals={"blanc": scores.blanc, "clusters": clusters},
-            number=num_runs,
-            repeat=repeat,
-        )
-    )
-    print(f"Slow:\t{slow_runtime} s ({slow_runtime/num_runs} s/call)")
-    fast_runtime = min(
-        timeit.repeat(
-            "blanc(clusters, clusters,)",
-            globals={"blanc": scores.blanc, "clusters": clusters},
-            number=num_runs,
-            repeat=repeat,
-        )
-    )
-    print(f"Fast:\t{fast_runtime} s ({fast_runtime/num_runs} s/call)")
-    print(f"Speedup: ×{slow_runtime/fast_runtime}")
+def remap_clusterings(
+    clusterings: ty.Sequence[ty.Sequence[ty.Set[ty.Hashable]]],
+) -> ty.List[ty.List[ty.Set[int]]]:
+    """Remap clusterings of arbitrary elements to clusterings of integers for faster operations."""
+    elts = set(e for clusters in clusterings for c in clusters for e in c)
+    elts_map = {e: i for i, e in enumerate(elts)}
+    res = []
+    for clusters in clusterings:
+        remapped_clusters = []
+        for c in clusters:
+            remapped_c = set(elts_map[e] for e in c)
+            remapped_clusters.append(remapped_c)
+        res.append(remapped_clusters)
+    return res
 
 
 with open(tests_dir / "fixtures" / "clusters.json") as in_stream:
@@ -60,4 +47,6 @@ with open(tests_dir / "fixtures" / "clusters.json") as in_stream:
 
 test_metrics(clusters)
 
-test_blanc_speedup(clusters)
+remapped = remap_clusterings([clusters])[0]
+
+test_metrics(remapped)
