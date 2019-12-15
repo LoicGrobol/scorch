@@ -31,21 +31,21 @@ def test_blanc_speedup(clusters: Clustering, num_runs: int = 100, repeat: int = 
     slow_runtime = min(
         timeit.repeat(
             "blanc(clusters, clusters, False)",
-            globals={"fun": scores.blanc, "clusters": clusters},
+            globals={"blanc": scores.blanc, "clusters": clusters},
             number=num_runs,
             repeat=repeat,
         )
     )
-    print(f"Slow\t{slow_runtime} s ({slow_runtime/num_runs} s/call)")
+    print(f"Slow:\t{slow_runtime} s ({slow_runtime/num_runs} s/call)")
     fast_runtime = min(
         timeit.repeat(
             "blanc(clusters, clusters,)",
-            globals={"fun": scores.blanc, "clusters": clusters},
+            globals={"blanc": scores.blanc, "clusters": clusters},
             number=num_runs,
             repeat=repeat,
         )
     )
-    print(f"Fast\t{fast_runtime} s ({fast_runtime/num_runs} s/call)")
+    print(f"Fast:\t{fast_runtime} s ({fast_runtime/num_runs} s/call)")
     print(f"Speedup: ×{slow_runtime/fast_runtime}")
 
 
