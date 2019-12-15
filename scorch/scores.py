@@ -78,6 +78,27 @@ def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set
         yield set((x,))
 
 
+class RemapClusteringsReturn(ty.NamedTuple):
+    clusterings: ty.Sequence[ty.Sequence[ty.Sequence[int]]]
+    elts_map: ty.Dict[ty.Hashable, int]
+
+
+def remap_clusterings(
+    clusterings: ty.Sequence[ty.Sequence[ty.Set[ty.Hashable]]],
+) -> RemapClusteringsReturn:
+    """Remap clusterings of arbitrary elements to clusterings of integers."""
+    elts = set(e for clusters in clusterings for c in clusters for e in c)
+    elts_map = {e: i for i, e in enumerate(elts)}
+    res = []
+    for clusters in clusterings:
+        remapped_clusters = []
+        for c in clusters:
+            remapped_c = [elts_map[e] for e in c]
+            remapped_clusters.append(remapped_c)
+        res.append(remapped_clusters)
+    return RemapClusteringsReturn(res, elts_map)
+
+
 def muc(
     key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
 ) -> ty.Tuple[float, float, float]:
@@ -202,7 +223,7 @@ def ceaf_e(
 
 # COMBAK: Check the numeric stability
 def blanc(
-    key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
+    key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set], fast=True,
 ) -> ty.Tuple[float, float, float]:
     r'''
     Return the BLANC `$(R, P, F)$` scores for a `#response` clustering given a `#key` clustering.
@@ -216,7 +237,10 @@ def blanc(
         (2014), BLANC should be `$\frac{0+F_n}{2}$` since `$C_k=∅$` and `$C_r≠∅$`, but according to
         Recasens and Hovy (2011), BLANC should be `$F_n$`.
     '''
-    C_score, N_score = detailed_blanc(key, response)
+    if fast:
+        C_score, N_score = fast_detailed_blanc(key, response)
+    else:
+        C_score, N_score = detailed_blanc(key, response)
     if C_score is None:
         assert N_score is not None  # nosec:B101
         return N_score
@@ -249,25 +273,93 @@ def detailed_blanc(
     C_k, N_k = links_from_clusters(key)
     C_r, N_r = links_from_clusters(response)
 
-    TP_c = C_k.intersection(C_r)
-    TP_n = N_k.intersection(N_r)
+    tp_c = len(C_k.intersection(C_r))
+    tp_n = len(N_k.intersection(N_r))
+    c_k, n_k = len(C_k), len(N_k)
+    c_r, n_r = len(C_r), len(N_r)
 
     if not C_k or not C_r:
-        R_c, P_c, F_c = (1.0, 1.0, 1.0) if C_k == C_r else (0.0, 0.0, 0.0)
+        R_c, P_c, F_c = (1.0, 1.0, 1.0) if c_k == c_r else (0.0, 0.0, 0.0)
     else:
-        R_c, P_c = len(TP_c) / len(C_k), len(TP_c) / len(C_r)
-        F_c = 2 * len(TP_c) / (len(C_k) + len(C_r))
+        R_c, P_c = tp_c / c_k, tp_c / c_r
+        F_c = 2 * tp_c / (c_k + c_r)
 
     if not N_k or not N_r:
         R_n, P_n, F_n = (1.0, 1.0, 1.0) if N_k == N_r else (0.0, 0.0, 0.0)
     else:
-        R_n, P_n = len(TP_n) / len(N_k), len(TP_n) / len(N_r)
-        F_n = 2 * len(TP_n) / (len(N_k) + len(N_r))
+        R_n, P_n = tp_n / n_k, tp_n / n_r
+        F_n = 2 * tp_n / (n_k + n_r)
 
     # Edge cases
-    if not C_k:
+    if not c_k:
         return (None, (R_n, P_n, F_n))
-    if not N_k:
+    if not n_k:
+        return ((R_c, P_c, F_c), None)
+
+    return ((R_c, P_c, F_c), (R_n, P_n, F_n))
+
+
+def fast_detailed_blanc(
+    key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
+) -> ty.Tuple[
+    ty.Union[ty.Tuple[float, float, float], None],
+    ty.Union[ty.Tuple[float, float, float], None],
+]:
+    '''Return BLANC `$(R, P, F)$` scores for coreference and non-coreference respectively.'''
+
+    # Edge case : a single mention in both `key` and `response` clusters
+    # in that case, `C_k`, `C_r`, `N_k` and `N_r` are all empty, so we need a separate examination
+    # of the mentions to know if we are very good or very bad.
+    if len(key) == len(response) == 1 and len(key[0]) == len(response[0]) == 1:
+        if key[0] == response[0]:
+            return ((1.0, 1.0, 1.0), (1.0, 1.0, 1.0))
+        else:
+            return ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
+
+    (key, response), mentions_map = remap_clusterings([key, response])
+    num_mentions = len(mentions_map)
+
+    # FIXME: these loops are still slower than necessary
+    key_links = np.zeros((num_mentions, num_mentions), dtype=np.bool)
+    for c in key:
+        for i, e in enumerate(c[:-1]):
+            for f in c[i + 1 :]:
+                key_links[e, f] = True
+                key_links[f, e] = True
+
+    response_links = np.zeros((num_mentions, num_mentions), dtype=np.bool)
+    for c in response:
+        for i, e in enumerate(c[:-1]):
+            for f in c[i + 1 :]:
+                response_links[e, f] = True
+                response_links[f, e] = True
+
+    # Headache ahead, remember that the diagonals are all 0
+    breakpoint()
+    num_links = num_mentions * (num_mentions - 1)
+    tp_c = np.logical_and(key_links, response_links).sum() / 2
+    tp_n = num_links - np.logical_or(key_links, response_links).sum() / 2
+    c_k = key_links.sum() / 2
+    c_r = response_links.sum() / 2
+    n_k = num_links - c_k
+    n_r = num_links - c_r
+
+    if not c_k or not c_r:
+        R_c, P_c, F_c = (1.0, 1.0, 1.0) if c_k == c_r else (0.0, 0.0, 0.0)
+    else:
+        R_c, P_c = tp_c / c_k, tp_c / c_r
+        F_c = 2 * tp_c / (c_k + c_r)
+
+    if not n_k or not n_r:
+        R_n, P_n, F_n = (1.0, 1.0, 1.0) if n_k == n_r else (0.0, 0.0, 0.0)
+    else:
+        R_n, P_n = tp_n / n_k, tp_n / n_r
+        F_n = 2 * tp_n / (n_k + n_r)
+
+    # Edge cases
+    if not c_k:
+        return (None, (R_n, P_n, F_n))
+    if not n_k:
         return ((R_c, P_c, F_c), None)
 
     return ((R_c, P_c, F_c), (R_n, P_n, F_n))
