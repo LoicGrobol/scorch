@@ -29,8 +29,8 @@ from scipy.optimize import linear_sum_assignment
 def links_from_clusters(
     clusters: ty.Iterable[ty.Set],
 ) -> ty.Tuple[
-    ty.Sequence[ty.Tuple[ty.Hashable, ty.Hashable]],
-    ty.Sequence[ty.Tuple[ty.Hashable, ty.Hashable]],
+    ty.Set[ty.Tuple[ty.Hashable, ty.Hashable]],
+    ty.Set[ty.Tuple[ty.Hashable, ty.Hashable]],
 ]:
     r'''
     Return a `(coreference_links, non-coreference_links)` tuple corresponding to a clustering.
@@ -38,23 +38,23 @@ def links_from_clusters(
     The links are given as sorted couples for uniqueness
     '''
     clusters_lst = [list(c) for c in clusters]
-    C = []
-    N = []
+    C = set()
+    N = set()
     for i, c in enumerate(clusters_lst[:-1]):
         for j, e in enumerate(c[:-1]):
             # Since the links are symmetric, we only add the links between `e` and
             # the following mentions
             for f in c[j + 1 :]:
-                C.append((min(e, f), max(e, f)))
+                C.add((e, f) if e <= f else (f, e))
         for other in clusters_lst[i + 1 :]:
             for e in c:
                 for f in other:
-                    N.append((min(e, f), max(e, f)))
+                    N.add((e, f) if e <= f else (f, e))
     #  We missed the coreference links for the last cluster, add them here
     last_cluster = clusters_lst[-1]
     for j, e in enumerate(last_cluster):
         for f in last_cluster[j + 1 :]:
-            C.append((min(e, f), max(e, f)))
+            C.add((e, f) if e <= f else (f, e))
     return C, N
 
 
@@ -246,8 +246,8 @@ def detailed_blanc(
         else:
             return ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
 
-    C_k, N_k = (set(l) for l in links_from_clusters(key))
-    C_r, N_r = (set(l) for l in links_from_clusters(response))
+    C_k, N_k = links_from_clusters(key)
+    C_r, N_r = links_from_clusters(response)
 
     TP_c = C_k.intersection(C_r)
     TP_n = N_k.intersection(N_r)
