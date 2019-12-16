@@ -6,11 +6,15 @@ Scorch<a id="footnote-0-1-backref" href="#footnote-0-1">¹</a>
 ![Build Status](https://github.com/LoicGrobol/scorch/workflows/Test/badge.svg)
 [![PyPI](https://img.shields.io/pypi/v/scorch.svg)](https://pypi.org/project/scorch)
 
-This is an alternative implementation of the coreference scorer for the CoNLL-2011/2012 shared tasks on coreference resolution.
+This is an alternative implementation of the coreference scorer for the CoNLL-2011/2012 shared tasks
+on coreference resolution.
 
-It aims to be more straightforward than the [reference implementation][ref-scorer], while maintaining as much compatibility with it as possible.
+It aims to be more straightforward than the [reference implementation][ref-scorer], while
+maintaining as much compatibility with it as possible.
 
-The implementations of the various scores are as close as possible from the formulas used by <a href="#pradhan2014scoring">Pradhan et al. (2014)</a>, with the edge cases for BLANC taken from <a href="recasens2011BLANC">Recasens and Hovy (2011)</a>.
+The implementations of the various scores are as close as possible from the formulas used by
+<a href="#pradhan2014scoring">Pradhan et al. (2014)</a>, with the edge cases for BLANC taken from
+<a href="recasens2011BLANC">Recasens and Hovy (2011)</a>.
 
 ---
 <sub><a id="footnote-0-1" href="#footnote-0-1-backref">1.</a> **S**corer for **cor**eference **ch**ains.</sub>
@@ -49,7 +53,10 @@ The input files should be JSON files with a `"type"` key at top-level
 - If `"type"` is `"clusters"`, then top-level should have a `"clusters"` key containing a mapping
   from clusters ids to cluster contents (as lists of mention identifiers).
 
-Of course the system and gold files should use the same set of mention identifiers…
+Of course the system and gold files should use the same set of mention identifiers for the mentions
+they have in common.
+
+For convenience, the [`conll.py`](/scorch/conll.py) converts CoNLL-2012 files to this format.
 
 ### Multiple documents
 
@@ -66,9 +73,10 @@ scores, ie their arithmetic means weighted by the relative numbers of
 This is different from the reference interpretation where
 
 - **MUC** weighting ignores mentions in singleton entities
-  - This should not make any difference for the CoNLL-2012 dataset, since singleton entities are not annotated.
-  - For datasets with singletons, the shortcomings of MUC are well known, so this score
-    shouldn't matter much
+  - This should not make any difference for the CoNLL-2012 dataset, since singleton entities are not
+    annotated.
+  - For datasets with singletons, the shortcomings of MUC are well known, so this score shouldn't
+    matter much
 - **BLANC** is calculated by micro-averaging coreference and non-coreference separately, using
   the number of links as weights instead of the number of mentions.
   - This is roughly equivalent to weighting coreference scores per document by their number of
@@ -80,14 +88,26 @@ The CoNLL average score is the arithmetic mean of the global MUC, B³ and CEAF�
 
 ## Sources
 
-- <a id="pradhan2014scoring" />**Scoring Coreference Partitions of Predicted Mentions: A Reference Implementation.** Sameer Pradhan, Xiaoqiang Luo, Marta Recasens, Eduard Hovy, Vincent Ng and Michael Strube. *Proceedings of the 52nd Annual Meeting of the Association for Computational Linguistics*, Baltimore, MD, June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2006.pdf))
-- <a id="recasens2011BLANC" />**BLANC: Implementing the Rand Index for Coreference Evaluation.** Marta Recasens and Eduard Hovy In: *Natural Language Engineering* 17 (4). Cambridge University Press, 2011. ([pdf](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.300.9229&rep=rep1&type=pdf))
-- <a id="luo2014BLANC" /> **An Extension of BLANC to System Mentions.** Xiaoqiang Luo, Sameer Pradhan, Marta Recasens and Eduard Hovy. *Proceedings of the 52nd Annual Meeting of the Association for Computational Linguistics*, Baltimore, MD, June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2005.pdf))
-- The version of the Kuhn-Munkres algorithm used for the CEAF scores uses [`scipy.optimize.linear_sum_assignment`](https://docs.scipy.org/doc/latest/reference/generated/scipy.optimize.linear_sum_assignment.html), with `$-ϕ_n$` as cost function.
+- <a id="pradhan2014scoring" />**Scoring Coreference Partitions of Predicted Mentions: A Reference
+  Implementation.** Sameer Pradhan, Xiaoqiang Luo, Marta Recasens, Eduard Hovy, Vincent Ng and
+  Michael Strube. *Proceedings of the 52nd Annual Meeting of the Association for Computational
+  Linguistics*, Baltimore, MD, June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2006.pdf))
+- <a id="recasens2011BLANC" />**BLANC: Implementing the Rand Index for Coreference Evaluation.**
+  Marta Recasens and Eduard Hovy In: *Natural Language Engineering* 17 (4). Cambridge University
+  Press, 2011.
+  ([pdf](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.300.9229&rep=rep1&type=pdf))
+- <a id="luo2014BLANC" /> **An Extension of BLANC to System Mentions.** Xiaoqiang Luo, Sameer
+  Pradhan, Marta Recasens and Eduard Hovy. *Proceedings of the 52nd Annual Meeting of the
+  Association for Computational Linguistics*, Baltimore, MD, June 2014.
+  ([pdf](http://aclweb.org/anthology/P/P14/P14-2005.pdf))
+- The version of the Kuhn-Munkres algorithm used for the CEAF scores uses
+  [`scipy.optimize.linear_sum_assignment`](https://docs.scipy.org/doc/latest/reference/generated/scipy.optimize.linear_sum_assignment.html),
+  with `$-ϕ_n$` as cost function.
 
 ## License
 
-Unless otherwise specified (see <a href="#license-exceptions">below</a>), the following licence (the so-called “MIT License”) applies to all the files in this repository.
+Unless otherwise specified (see <a href="#license-exceptions">below</a>), the following licence (the
+so-called “MIT License”) applies to all the files in this repository.
 See also [LICENSE.md](LICENSE.md).
 
 ```text
@@ -111,10 +131,14 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 ### <a id="license-exceptions">License exceptions</a>
 
-- The reference scorer testcases located in [`tests/fixtures/conll/`](tests/fixtures/conll/datafiles) are distributed under the [Creative Commons Attribution ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/)
+- The reference scorer testcases located in
+  [`tests/fixtures/conll/`](tests/fixtures/conll/datafiles) are distributed under the [Creative
+  Commons Attribution ShareAlike 4.0 International
+  License](http://creativecommons.org/licenses/by-sa/4.0/)
   - **Copyright** © 2011- Sameer Pradhan pradhan \<at\> cemantix.org
   - **Authors**
-    - Emili Sapena, Universitat Politècnica de Catalunya, <http://www.lsi.upc.edu/~esapena>, esapena \<at\> lsi.upc.edu
+    - Emili Sapena, Universitat Politècnica de Catalunya, <http://www.lsi.upc.edu/~esapena>, esapena
+      \<at\> lsi.upc.edu
     - Sameer Pradhan, <http://cemantix.org>, pradhan \<at\> cemantix.org
     - Sebastian Martschat, sebastian.martschat \<at\> h-its.org
     - Xiaoqiang Luo, xql \<at\> google.com
