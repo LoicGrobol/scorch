@@ -23,31 +23,39 @@ def links():
 @pytest.fixture()
 def gold_file(request):
     test_file = pathlib.Path(request.module.__file__)
-    return (test_file.resolve().parent/'fixtures'/'json'/'single'/'gold.json').open()
+    return (
+        test_file.resolve().parent / 'fixtures' / 'json' / 'single' / 'gold.json'
+    ).open()
 
 
 @pytest.fixture()
 def sys_file(request):
     test_file = pathlib.Path(request.module.__file__)
-    return (test_file.resolve().parent/'fixtures'/'json'/'single'/'sys.json').open()
+    return (
+        test_file.resolve().parent / 'fixtures' / 'json' / 'single' / 'sys.json'
+    ).open()
 
 
 @pytest.fixture()
 def out_file(request):
     test_file = pathlib.Path(request.module.__file__)
-    return (test_file.resolve().parent/'fixtures'/'json'/'single'/'out.txt').open().read()
+    return (
+        (test_file.resolve().parent / 'fixtures' / 'json' / 'single' / 'out.txt')
+        .open()
+        .read()
+    )
 
 
 @pytest.fixture()
 def gold_dir(request):
     test_file = pathlib.Path(request.module.__file__)
-    return (test_file.resolve().parent/'fixtures'/'json'/'multiple'/'gold')
+    return test_file.resolve().parent / 'fixtures' / 'json' / 'multiple' / 'gold'
 
 
 @pytest.fixture()
 def sys_dir(request):
     test_file = pathlib.Path(request.module.__file__)
-    return (test_file.resolve().parent/'fixtures'/'json'/'multiple'/'sys')
+    return test_file.resolve().parent / 'fixtures' / 'json' / 'multiple' / 'sys'
 
 
 # @pytest.fixture()

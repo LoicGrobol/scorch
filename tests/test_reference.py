@@ -16,7 +16,7 @@ METRICS = {
     "blanc": scores.blanc,
 }
 
-DEFAULT_CONFIG = pathlib.Path(__file__).parent/'fixtures/conll/conll.json'
+DEFAULT_CONFIG = pathlib.Path(__file__).parent / 'fixtures/conll/conll.json'
 
 
 def load_testcases(config_path):
@@ -24,9 +24,9 @@ def load_testcases(config_path):
     with config_path.open() as config_stream:
         config = json.load(config_stream)
     for testcase_id, testcase in config.items():
-        with (config_path.parent/testcase['key_file']).open() as key_stream:
+        with (config_path.parent / testcase['key_file']).open() as key_stream:
             key_file = list(l.strip() for l in key_stream)
-        with (config_path.parent/testcase['response_file']).open() as response_stream:
+        with (config_path.parent / testcase['response_file']).open() as response_stream:
             response_file = list(l.strip() for l in response_stream)
         yield (testcase_id, key_file, response_file, testcase['expected_metrics'])
 
@@ -35,9 +35,13 @@ def load_testcases(config_path):
 def testcase(request):
     testcase_id, key_file, response_file, raw_metrics = request.param
     key_clusters = [set(c) for c in next(conll.parse_file(key_file))[1].values()]
-    response_clusters = [set(c) for c in next(conll.parse_file(response_file))[1].values()]
-    expected_metrics = {metric: [eval(v) if isinstance(v, str) else v for v in rpf]
-                        for metric, rpf in raw_metrics.items()}
+    response_clusters = [
+        set(c) for c in next(conll.parse_file(response_file))[1].values()
+    ]
+    expected_metrics = {
+        metric: [eval(v) if isinstance(v, str) else v for v in rpf]
+        for metric, rpf in raw_metrics.items()
+    }
     yield (testcase_id, key_clusters, response_clusters, expected_metrics)
 
 
