@@ -316,10 +316,14 @@ def adjacency(
     adjacency = np.zeros((num_elts, num_elts), dtype=np.bool)
     presence = np.zeros(num_elts, dtype=np.bool)
     # **Note** The nested loop makes the complexity of this `$∑|c|²$` but we are only doing memory
-    # access, which is really fast, so this is not really an issue. As comparison, doing it by
+    # access, which is really fast, so this is not really an issue. In comparison, doing it by
     # computing the Gram matrix one-hot elt-cluster attribution matrix was making `fast_blanc` 3×
     # slower than the naïve version.
     for c in clusters:
+        # Note: don't be clever and use numpy array indicing here, see
+        # <https://docs.scipy.org/doc/numpy/user/basics.indexing.html?highlight=slice#assigning-values-to-indexed-arrays>
+        # for why it would be slower. If you want to get C loops here, cythonize it instead (nut
+        # it's probably not worth it)
         for e in c:
             presence[e] = True
             for f in c:
