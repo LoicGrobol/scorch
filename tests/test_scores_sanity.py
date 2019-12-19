@@ -16,10 +16,13 @@ def test_perfect(metric, clusters: ty.Sequence[ty.Set[int]]):
     assert metric(clusters, clusters) == (1.0, 1.0, 1.0)
 
 
-# TODO: there might be a hypothesis invocation to integrate this in `test_perfect`
+# TODO: there might be a hypothesis invocation to integrate this in `test_perfect`, the issue here
+# not that MUC can't deal with clusterings that include singletons but that it will always yield (0,
+# 0, 0) for all-singletons-only key clusterings whatever the response
 @hypothesis.given(clusters=clusterings(max_size=256, allow_singletons=False))
 def test_perfect_muc(clusters: ty.Sequence[ty.Set[int]]):
     """Test that all the scores are `1.0` for a perfect system output for MUC"""
+
     assert scores.muc(clusters, clusters) == (1.0, 1.0, 1.0)
 
 

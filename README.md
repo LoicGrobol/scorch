@@ -5,6 +5,7 @@ Scorch<a id="footnote-0-1-backref" href="#footnote-0-1">¹</a>
 
 ![Build Status](https://github.com/LoicGrobol/scorch/workflows/Test/badge.svg)
 [![PyPI](https://img.shields.io/pypi/v/scorch.svg)](https://pypi.org/project/scorch)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 This is an alternative implementation of the coreference scorer for the CoNLL-2011/2012 shared tasks
 on coreference resolution.
