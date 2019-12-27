@@ -27,6 +27,7 @@ jobs:
     needs: lint
     strategy:
       max-parallel: 4
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: [3.7, 3.8]

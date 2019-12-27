@@ -22,7 +22,6 @@ Implementation* (Pradhan et al., 2014)
 import contextlib
 import json
 import pathlib
-import signal
 import sys
 
 import typing as ty
@@ -39,9 +38,6 @@ from docopt import docopt
 from scorch import scores
 from scorch import __version__
 
-
-# Deal with piping output in a standard-compliant way
-signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 METRICS = {
     "MUC": scores.muc,
