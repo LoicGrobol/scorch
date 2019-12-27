@@ -3,7 +3,7 @@
 Scorch<a id="footnote-0-1-backref" href="#footnote-0-1">¹</a>
 ======
 
-![Build Status](https://github.com/LoicGrobol/scorch/workflows/Test/badge.svg)
+[![Build Status](https://github.com/LoicGrobol/scorch/workflows/CI/badge.svg)](https://github.com/LoicGrobol/scorch/actions?query=workflow%3ACI)
 [![PyPI](https://img.shields.io/pypi/v/scorch.svg)](https://pypi.org/project/scorch)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
