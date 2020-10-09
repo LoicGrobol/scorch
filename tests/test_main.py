@@ -25,7 +25,7 @@ def gold_file(request):
     test_file = pathlib.Path(request.module.__file__)
     return (
         test_file.resolve().parent / 'fixtures' / 'json' / 'single' / 'gold.json'
-    ).open()
+    ).open(encoding="utf8")
 
 
 @pytest.fixture()
@@ -33,7 +33,7 @@ def sys_file(request):
     test_file = pathlib.Path(request.module.__file__)
     return (
         test_file.resolve().parent / 'fixtures' / 'json' / 'single' / 'sys.json'
-    ).open()
+    ).open(encoding="utf8")
 
 
 @pytest.fixture()
@@ -41,7 +41,7 @@ def out_file(request):
     test_file = pathlib.Path(request.module.__file__)
     return (
         (test_file.resolve().parent / 'fixtures' / 'json' / 'single' / 'out.txt')
-        .open()
+        .open(encoding="utf8")
         .read()
     )
 
