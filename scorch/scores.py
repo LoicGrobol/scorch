@@ -116,13 +116,13 @@ def b_cubed(
     ```
     '''
     if sum(len(k) for k in key) == 0:
-        R = 0
+        R = 0.0
     else:
         R = math.fsum(
             len(k.intersection(r)) ** 2 / len(k) for k in key for r in response
         ) / sum(len(k) for k in key)
     if sum(len(r) for r in response) == 0:
-        P = 0
+        P = 0.0
     else:
         P = math.fsum(
             len(r.intersection(k)) ** 2 / len(r) for r in response for k in key
@@ -148,7 +148,7 @@ def ceaf(
     clusters that maximizes `$∑_{k∈K}C(k, A(k))$`.
     '''
     if len(response) == 0 or len(key) == 0:
-        return 0, 0, 0
+        return 0.0, 0.0, 0.0
     else:
         cost_matrix = np.array([[-score(k, r) for r in response] for k in key])
         # TODO: See https://github.com/allenai/allennlp/issues/2946 for ideas on speeding
