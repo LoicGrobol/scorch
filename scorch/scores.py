@@ -115,12 +115,18 @@ def b_cubed(
     F &= 2*\frac{PR}{P+R}
     ```
     '''
-    R = math.fsum(
-        len(k.intersection(r)) ** 2 / len(k) for k in key for r in response
-    ) / sum(len(k) for k in key)
-    P = math.fsum(
-        len(r.intersection(k)) ** 2 / len(r) for r in response for k in key
-    ) / sum(len(r) for r in response)
+    if sum(len(k) for k in key) == 0:
+        R = 0.0
+    else:
+        R = math.fsum(
+            len(k.intersection(r)) ** 2 / len(k) for k in key for r in response
+        ) / sum(len(k) for k in key)
+    if sum(len(r) for r in response) == 0:
+        P = 0.0
+    else:
+        P = math.fsum(
+            len(r.intersection(k)) ** 2 / len(r) for r in response for k in key
+        ) / sum(len(r) for r in response)
     F = harmonic_mean((R, P))
     return R, P, F
 
@@ -141,15 +147,18 @@ def ceaf(
     Where `$C$` is `#score` and `$A$` is a one-to-one mapping from key clusters to response
     clusters that maximizes `$∑_{k∈K}C(k, A(k))$`.
     '''
-    cost_matrix = np.array([[-score(k, r) for r in response] for k in key])
-    # TODO: See https://github.com/allenai/allennlp/issues/2946 for ideas on speeding
-    # the next line up
-    row_ind, col_ind = linear_sum_assignment(cost_matrix)
-    total_score = -cost_matrix[row_ind, col_ind].sum()
-    R = total_score / math.fsum(score(k, k) for k in key)
-    P = total_score / math.fsum(score(r, r) for r in response)
-    F = harmonic_mean((R, P))
-    return R, P, F
+    if len(response) == 0 or len(key) == 0:
+        return 0.0, 0.0, 0.0
+    else:
+        cost_matrix = np.array([[-score(k, r) for r in response] for k in key])
+        # TODO: See https://github.com/allenai/allennlp/issues/2946 for ideas on speeding
+        # the next line up
+        row_ind, col_ind = linear_sum_assignment(cost_matrix)
+        total_score = -cost_matrix[row_ind, col_ind].sum()
+        R = total_score / math.fsum(score(k, k) for k in key)
+        P = total_score / math.fsum(score(r, r) for r in response)
+        F = harmonic_mean((R, P))
+        return R, P, F
 
 
 def ceaf_m(
