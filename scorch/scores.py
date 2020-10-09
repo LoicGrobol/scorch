@@ -25,6 +25,8 @@ import numpy as np
 
 from scipy.optimize import linear_sum_assignment
 
+EPS=10**-9
+
 
 def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set]:
     r'''
@@ -117,10 +119,10 @@ def b_cubed(
     '''
     R = math.fsum(
         len(k.intersection(r)) ** 2 / len(k) for k in key for r in response
-    ) / sum(len(k) for k in key)
+    ) / (sum(len(k) for k in key) + EPS)
     P = math.fsum(
         len(r.intersection(k)) ** 2 / len(r) for r in response for k in key
-    ) / sum(len(r) for r in response)
+    ) / (sum(len(r) for r in response) + EPS)
     F = harmonic_mean((R, P))
     return R, P, F
 
