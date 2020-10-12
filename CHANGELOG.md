@@ -10,10 +10,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 [Unreleased]: https://github.com/loicgrobol/scorch/compare/v0.0.26...HEAD
 
+## [0.1.0] — 2020-10-12
+
+[0.1.0]: https://github.com/loicgrobol/scorch/compare/v0.0.26...0.1.0
+
 ### Fixed
 
 - Stop redirecting SIGPIPE
   [incorrectly](https://docs.python.org/3/library/signal.html#note-on-sigpipe)
+- B³ and CEAF P and R are now set to 0 if their denominator is 0, following the reference implementation ([@Rexhaif](https://github.com/Rexhaif) in [#10](https://github.com/LoicGrobol/scorch/pull/10))
 
 ## [0.0.26] - 2019-12-16
 
