@@ -369,14 +369,12 @@ def fast_detailed_blanc(
     c_r = response_coref_links.sum() // 2
 
     # Headache ahead
-    # There is no link between a mention and itself
     common_links = np.logical_and(
-        np.logical_and(
-            np.outer(key_presence, key_presence),
-            np.outer(response_presence, response_presence),
-        ),
-        np.logical_not(np.identity(num_mentions, dtype=np.bool)),
+        np.outer(key_presence, key_presence),
+        np.outer(response_presence, response_presence),
     )
+    # There is no link between a mention and itself
+    np.fill_diagonal(common_links, False)
     tp_n = (
         np.logical_and(
             common_links,
