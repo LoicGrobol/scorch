@@ -1,4 +1,4 @@
-'''
+"""
 CoNLL-2011/2012 scores for coreference detection.
 
 
@@ -15,7 +15,7 @@ Hovy In: *Natural Language Engineering* 17 (4). Cambridge University Press, 2011
 Eduard Hovy. *Proceedings of the 52nd Annual Meeting of the Association for Computational
 Linguistics*, Baltimore, MD, June 2014. ([pdf](http://aclweb.org/anthology/P/P14/P14-2005.pdf))
 The reference implementation : <https://github.com/conll/reference-coreference-scorers>
-'''
+"""
 import math
 import typing as ty
 
@@ -27,7 +27,7 @@ from scipy.optimize import linear_sum_assignment
 
 
 def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set]:
-    r'''
+    r"""
     Return the partition of `#cluster` induced by `#partition`, that is
     ```math
     \{C∩A|A∈P\} ∪ \{\{x\}|x∈C∖∪P\}
@@ -35,7 +35,7 @@ def trace(cluster: ty.Set, partition: ty.Iterable[ty.Set]) -> ty.Iterable[ty.Set
     Where `$C$` is `#cluster` and `$P$` is `#partition`.
 
     This assume that the elements of `#partition` are indeed pairwise disjoint.
-    '''
+    """
     remaining = set(cluster)
     for a in partition:
         common = remaining.intersection(a)
@@ -70,7 +70,7 @@ def remap_clusterings(
 def muc(
     key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
 ) -> ty.Tuple[float, float, float]:
-    r'''
+    r"""
     Compute the MUC `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is
     ```math
@@ -89,7 +89,7 @@ def muc(
     mentions in documents to consistently assign a non-problematic spanning tree (viz. a chain) to
     each cluster, thus avoiding the issues that led Vilain et al. (1995) to define MUC by the
     formulae above.
-    '''
+    """
     # Edge case
     if all(len(k) == 1 for k in key) or all(len(r) == 1 for r in response):
         return 0.0, 0.0, 0.0
@@ -106,7 +106,7 @@ def muc(
 def b_cubed(
     key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
 ) -> ty.Tuple[float, float, float]:
-    r'''
+    r"""
     Compute the B³ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is
     ```math
@@ -114,7 +114,7 @@ def b_cubed(
     P &= \frac{∑_{r∈R}∑_{k∈K}\frac{(\#r∩k)²}{\#r}}{∑_{r∈R}\#r}\\
     F &= 2*\frac{PR}{P+R}
     ```
-    '''
+    """
     if sum(len(k) for k in key) == 0:
         R = 0.0
     else:
@@ -136,7 +136,7 @@ def ceaf(
     response: ty.Sequence[ty.Set],
     score: ty.Callable[[ty.Set, ty.Set], float],
 ) -> ty.Tuple[float, float, float]:
-    r'''
+    r"""
     Compute the CEAF `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering
     using the `#score` alignment score function, that is
     ```math
@@ -146,7 +146,7 @@ def ceaf(
     ```
     Where `$C$` is `#score` and `$A$` is a one-to-one mapping from key clusters to response
     clusters that maximizes `$∑_{k∈K}C(k, A(k))$`.
-    '''
+    """
     if len(response) == 0 or len(key) == 0:
         return 0.0, 0.0, 0.0
     else:
@@ -164,13 +164,13 @@ def ceaf(
 def ceaf_m(
     key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
 ) -> ty.Tuple[float, float, float]:
-    r'''
+    r"""
     Compute the CEAFₘ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key` clustering,
     that is the CEAF score for the `$Φ_3$` score function
     ```math
     Φ_3: (k, r) ⟼ \#k∩r
     ```
-    '''
+    """
 
     def Φ_3(k, r):
         return len(k.intersection(r))
@@ -181,7 +181,7 @@ def ceaf_m(
 def ceaf_e(
     key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]
 ) -> ty.Tuple[float, float, float]:
-    r'''
+    r"""
     Compute the CEAFₑ `$(R, P, F₁)$` scores for a `#response` clustering given a `#key`
     clustering, that is the CEAF score for the `$Φ₄$` score function (aka the Sørensen–Dice
     coefficient).
@@ -190,7 +190,7 @@ def ceaf_e(
     ```
     Note: this use the original (Luo, 2005) definition as opposed to Pradhan et al. (2014)'s one
     which inlines the denominators.
-    '''
+    """
 
     def Φ_4(k, r):
         return 2 * len(k.intersection(r)) / (len(k) + len(r))
@@ -202,7 +202,7 @@ def ceaf_e(
 def blanc(
     key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set], fast=True,
 ) -> ty.Tuple[float, float, float]:
-    r'''
+    r"""
     Return the BLANC `$(R, P, F)$` scores for a `#response` clustering given a `#key` clustering.
 
     ## Notes
@@ -213,7 +213,7 @@ def blanc(
         those two disagree. This has an effect for the N-6 testcase, where according to Luo et al.
         (2014), BLANC should be `$\frac{0+F_n}{2}$` since `$C_k=∅$` and `$C_r≠∅$`, but according to
         Recasens and Hovy (2011), BLANC should be `$F_n$`.
-    '''
+    """
     if fast:
         C_score, N_score = fast_detailed_blanc(key, response)
     else:
@@ -236,11 +236,11 @@ def links_from_clusters(
     ty.Set[ty.Tuple[ty.Hashable, ty.Hashable]],
     ty.Set[ty.Tuple[ty.Hashable, ty.Hashable]],
 ]:
-    r'''
+    r"""
     Return a `(coreference_links, non-coreference_links)` tuple corresponding to a clustering.
 
     The links are given as sorted couples for uniqueness
-    '''
+    """
     clusters_lst = [list(c) for c in clusters]
     C = set()
     N = set()
@@ -268,7 +268,7 @@ def detailed_blanc(
     ty.Union[ty.Tuple[float, float, float], None],
     ty.Union[ty.Tuple[float, float, float], None],
 ]:
-    '''Return BLANC `$(R, P, F)$` scores for coreference and non-coreference respectively.'''
+    """Return BLANC `$(R, P, F)$` scores for coreference and non-coreference respectively."""
 
     # Edge case : a single mention in both `key` and `response` clusters
     # in that case, `C_k`, `C_r`, `N_k` and `N_r` are all empty, so we need a separate examination
@@ -319,9 +319,7 @@ class AdjacencyReturn(ty.NamedTuple):
     presence: np.ndarray
 
 
-def adjacency(
-    clusters: ty.List[ty.List[int]], num_elts: int
-) -> AdjacencyReturn:
+def adjacency(clusters: ty.List[ty.List[int]], num_elts: int) -> AdjacencyReturn:
     adjacency = np.zeros((num_elts, num_elts), dtype=np.bool)
     presence = np.zeros(num_elts, dtype=np.bool)
     # **Note** The nested loop makes the complexity of this `$∑|c|²$` but we are only doing memory
@@ -347,7 +345,7 @@ def fast_detailed_blanc(
     ty.Union[ty.Tuple[float, float, float], None],
     ty.Union[ty.Tuple[float, float, float], None],
 ]:
-    '''Return BLANC `$(R, P, F)$` scores for coreference and non-coreference respectively.'''
+    """Return BLANC `$(R, P, F)$` scores for coreference and non-coreference respectively."""
 
     # Edge case : a single mention in both `key` and `response` clusters
     # in that case, `C_k`, `C_r`, `N_k` and `N_r` are all empty, so we need a separate examination
@@ -413,8 +411,8 @@ def fast_detailed_blanc(
 
 
 def conll2012(key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]) -> float:
-    r'''
+    r"""
     Return the CoNLL-2012 scores for a `#response` clustering given a `#key` clustering, that is,
     the average of the MUC, B³ and CEAFₑ scores.
-    '''
+    """
     return mean((metric(key, response)[2] for metric in (muc, b_cubed, ceaf_e)))

@@ -15,7 +15,7 @@ r"""Convert CoNLL-2012 files to simple JSON.
   `conll input.conll out.json`
 """
 
-__version__ = 'conll 0.0.0'
+__version__ = "conll 0.0.0"
 
 import contextlib
 import json
@@ -33,12 +33,12 @@ from docopt import docopt
 def parse_block(
     lines: ty.Iterable[str], column: int = -1
 ) -> ty.Dict[str, ty.List[ty.Tuple[str, str]]]:
-    '''
+    """
     Parse a bloc (≈sentence) in the CoNLL format, return entities as mappings
     ```
     entity_id → [(mention_start, mention_end), …]
     ```
-    '''
+    """
     # We have to keep track of the order in which the entites are created (i.e.) the begining of
     # their first mention, since it will be used to determine which entity gets the mention in case
     # of duplication
@@ -55,32 +55,32 @@ def parse_block(
         try:
             coref = row[column]
         except IndexError:
-            raise ValueError(f'Badly formatted line: {l!r}')
-        if coref == '-':
+            raise ValueError(f"Badly formatted line: {l!r}")
+        if coref == "-":
             continue
 
-        for m in re.finditer(r'\((\d+)', coref):
+        for m in re.finditer(r"\((\d+)", coref):
             e = m.group(1)
             if e not in entities:
                 entities[e] = []
             dangling[e].append(row_n)
 
-        for m in re.finditer(r'(\d+)\)', coref):
+        for m in re.finditer(r"(\d+)\)", coref):
             try:
                 start = dangling[m.group(1)].pop()
             except IndexError:
-                raise ValueError(f'Unbalanced parentheses at line {i}: {l!r}')
+                raise ValueError(f"Unbalanced parentheses at line {i}: {l!r}")
             entities[m.group(1)].append((start, row_n))
     if any(dangling.values()):
         raise ValueError(
-            f'Dangling mentions at line {i}: {[e for e, v in dangling.items() if e]}'
+            f"Dangling mentions at line {i}: {[e for e, v in dangling.items() if e]}"
         )
 
     return entities
 
 
 def split_blocks(lines: ty.Iterable[str]) -> ty.Iterable[ty.List[str]]:
-    '''Split blocks in a CoNLL document.'''
+    """Split blocks in a CoNLL document."""
     buffer: ty.List[str] = []
     for l in lines:
         if not l or l.isspace():
@@ -95,19 +95,19 @@ def split_blocks(lines: ty.Iterable[str]) -> ty.Iterable[ty.List[str]]:
 def parse_document(
     lines: ty.Iterable[str], column=-1
 ) -> ty.Dict[str, ty.List[ty.Tuple[int, str, str]]]:
-    '''
+    """
     Parse a document in the CoNLL format, return entities as mappings
     ```
     entity_id → [(block_number, mention_start, mention_end), …]
     ```
-    '''
+    """
     entities: ty.Dict[str, ty.List[ty.Tuple[int, str, str]]] = OrderedDict()
     for i, block in enumerate(split_blocks(lines)):
         try:
             block_entities = parse_block(block)
         except ValueError as e:
             raise ValueError(
-                'Parse error in block {i}:\n{e}\n{block}'.format(
+                "Parse error in block {i}:\n{e}\n{block}".format(
                     i=i, e=e, block="\n".join(block)
                 )
             )
@@ -132,24 +132,24 @@ def parse_document(
 def parse_file(
     lines: ty.Iterable[str], column: int = -1
 ) -> ty.Iterable[ty.Tuple[str, ty.Dict[str, ty.List[ty.Tuple[int, str, str]]]]]:
-    '''
+    """
     Parse a CoNLL file, return document as tuples `(document_name, entities)` where
     entities are mappings
     ```
     entity_id → [(block_number, mention_start, mention_end), …]
     ```
-    '''
+    """
     buffer: ty.List[str] = []
     for l in lines:
-        if l.startswith('#'):
-            m = re.match(r'#\s*begin document \((.*?)\);(\s*part (.*))?', l)
+        if l.startswith("#"):
+            m = re.match(r"#\s*begin document \((.*?)\);(\s*part (.*))?", l)
             if m:
                 if m.group(2):
-                    doc_name = f'{m.group(1)}-{m.group(3)}'
+                    doc_name = f"{m.group(1)}-{m.group(3)}"
                 else:
                     doc_name = m.group(1)
                 continue
-            m = re.match(r'#\s*end document', l)
+            m = re.match(r"#\s*end document", l)
             if m:
                 doc_entities = parse_document(buffer, column)
                 buffer = []
@@ -190,27 +190,27 @@ def main_entry_point(argv=None):
     arguments = docopt(__doc__, version=__version__, argv=argv)
     # Since there are no support for default positional arguments in
     # docopt yet. Might be useful for complex default values, too
-    if arguments['<out-dir>'] is None:
-        if arguments['<conll-file>'] == '-':
-            arguments['<out-dir>'] = pathlib.Path.cwd()
+    if arguments["<out-dir>"] is None:
+        if arguments["<conll-file>"] == "-":
+            arguments["<out-dir>"] = pathlib.Path.cwd()
         else:
-            arguments['<out-dir>'] = pathlib.Path(arguments['<conll-file>']).parent
+            arguments["<out-dir>"] = pathlib.Path(arguments["<conll-file>"]).parent
     else:
-        arguments['<out-dir>'] = pathlib.Path(arguments['<out-dir>'])
+        arguments["<out-dir>"] = pathlib.Path(arguments["<out-dir>"])
 
-    with smart_open(arguments['<conll-file>']) as in_stream:
+    with smart_open(arguments["<conll-file>"]) as in_stream:
         documents = list(parse_file((l.strip() for l in in_stream)))
 
     for name, entities in documents:
-        sanitized_name = name.replace('/', '_')
-        out_path = arguments['<out-dir>'] / f'{sanitized_name}.json'
-        with out_path.open('w') as out_stream:
+        sanitized_name = name.replace("/", "_")
+        out_path = arguments["<out-dir>"] / f"{sanitized_name}.json"
+        with out_path.open("w") as out_stream:
             json.dump(
                 {
-                    'name': name,
-                    'type': 'clusters',
-                    'clusters': {
-                        e: [f'{block}.{start}-{end}' for block, start, end in c]
+                    "name": name,
+                    "type": "clusters",
+                    "clusters": {
+                        e: [f"{block}.{start}-{end}" for block, start, end in c]
                         for e, c in entities.items()
                     },
                 },
@@ -218,5 +218,5 @@ def main_entry_point(argv=None):
             )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main_entry_point())
