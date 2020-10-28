@@ -44,7 +44,10 @@ jobs:
                   tox
     build_wheels:
         name: Build wheels on ${{ matrix.os }}
-        runs-on: ubuntu-latest
+        runs-on: ${{ matrix.os }}
+        strategy:
+          matrix:
+            os: [ubuntu-latest]
         needs: test
         steps:
             - uses: actions/checkout@v2
