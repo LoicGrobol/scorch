@@ -64,10 +64,10 @@ jobs:
                   python-version: "3.8"
             - name: Build wheels
               run: |
-                  pip wheel -w ./wheelhouse .
+                  pip wheel -w ./dist .
             - uses: actions/upload-artifact@v2
               with:
-                  path: ./wheelhouse/*.whl
+                  path: ./dist/*.whl
     build_sdist:
         name: Build source distribution
         runs-on: ubuntu-latest
