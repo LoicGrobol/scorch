@@ -410,6 +410,22 @@ def fast_detailed_blanc(
     return ((R_c, P_c, F_c), (R_n, P_n, F_n))
 
 
+def lea(key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]) -> ty.Tuple[float, float, float]:
+    """
+    Return the LEA `$(R, P, F)$` scores for a `#response` clustering given a `#key` clustering.
+    """
+
+    def link(entity, singleton=False):
+        n = len(entity)
+        return 1 if (n==1 and singleton==True) else n*(n-1)/2
+    
+    recall = math.fsum([len(k)*math.fsum([link(k.intersection(r), singleton=True if len(k) == 1 == len(r) else False)/link(k, singleton=True) for r in response]) for k in key])/math.fsum([len(k) for k in key])
+    precision = math.fsum([len(r)*math.fsum([link(r.intersection(k), singleton=True if len(k) == 1 == len(r) else False)/link(r, singleton=True) for k in key]) for r in response])/math.fsum([len(r) for r in response])
+    try: f = 2*precision*recall/(precision+recall)
+    except ZeroDivisionError: f = 0
+    return (recall, precision, f)
+
+
 def conll2012(key: ty.Sequence[ty.Set], response: ty.Sequence[ty.Set]) -> float:
     r"""
     Return the CoNLL-2012 scores for a `#response` clustering given a `#key` clustering, that is,
